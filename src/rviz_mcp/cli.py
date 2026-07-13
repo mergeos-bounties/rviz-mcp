@@ -24,6 +24,7 @@ TOOL_NAMES = [
     "rviz_list_displays",
     "rviz_add_display",
     "rviz_remove_display",
+    "rviz_set_display_props",
     "rviz_set_fixed_frame",
     "rviz_set_view",
     "rviz_load_config",
@@ -126,6 +127,10 @@ def call_cmd(
             bool(kv.get("enabled", True)),
         ),
         "rviz_remove_display": lambda: b.remove_display(str(kv.get("name", ""))),
+        "rviz_set_display_props": lambda: b.set_display_props(
+            str(kv.get("name", "")),
+            str(kv.get("props_json", "{}")),
+        ),
         "rviz_set_fixed_frame": lambda: b.set_fixed_frame(str(kv.get("frame", "map"))),
         "rviz_set_view": lambda: b.set_view(
             str(kv.get("view_class", "rviz_default_plugins/Orbit")),

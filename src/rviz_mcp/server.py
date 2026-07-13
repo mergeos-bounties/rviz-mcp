@@ -68,6 +68,17 @@ def rviz_remove_display(name: str) -> str:
 
 
 @mcp.tool()
+def rviz_set_display_props(name: str, props_json: str = "{}") -> str:
+    """Set optional properties on a display (color, size, alpha, etc.).
+
+    Args:
+        name: Display name to update.
+        props_json: JSON string with key/value properties to merge.
+    """
+    return _j(get_backend().set_display_props(name, props_json))
+
+
+@mcp.tool()
 def rviz_set_fixed_frame(frame: str) -> str:
     """Set the fixed frame (e.g. map, odom, base_link)."""
     return _j(get_backend().set_fixed_frame(frame))
