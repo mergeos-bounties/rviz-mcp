@@ -19,7 +19,7 @@
 | **Offline mock** | Display tree, fixed frame, view controller |
 | **Live bridge** | Optional HTTP/file bridge when `RVIZ_MCP_MODE=live` |
 | **MCP stdio** | Cursor / Claude / Grok host integration |
-| **CLI** | `demo` · `doctor` · `serve` · `call` |
+| **CLI** | `status` · `demo` · `doctor` · `serve` · `call` |
 
 ---
 
@@ -32,6 +32,7 @@ python -m venv .venv
 pip install -e ".[dev]"
 rviz-mcp demo
 rviz-mcp doctor
+rviz-mcp status
 pytest -q
 ```
 
@@ -55,6 +56,7 @@ rviz-mcp serve
 | Tool | Purpose |
 | --- | --- |
 | `rviz_doctor` | Connectivity / config health |
+| `status` (CLI) | Fixed frame, display count, mode, version (`--json` supported) |
 | `rviz_seed_demo` | Reset mock displays (Grid, TF, RobotModel) |
 | `rviz_list_displays` | Current display tree |
 | `rviz_add_display` / `rviz_remove_display` | Manage displays |

@@ -46,6 +46,25 @@ def doctor_cmd() -> None:
     rprint(info)
 
 
+@app.command("status")
+def status_cmd(
+    json_out: bool = typer.Option(False, "--json", help="Emit machine-readable JSON."),
+) -> None:
+    """Show current RViz state: fixed_frame, display count, mode, version."""
+    b = get_backend()
+    info = b.doctor()
+    status = {
+        "fixed_frame": info.get("fixed_frame"),
+        "display_count": info.get("display_count", len(b.list_displays())),
+        "mode": get_mode(),
+        "version": __version__,
+    }
+    if json_out:
+        typer.echo(json.dumps(status))
+    else:
+        rprint(status)
+
+
 @app.command("demo")
 def demo_cmd() -> None:
     """Offline smoke: seed displays, add LaserScan, set frame/view, screenshot."""
