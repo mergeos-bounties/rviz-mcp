@@ -66,23 +66,26 @@ def status_cmd(
 
 
 @app.command("demo")
-def demo_cmd() -> None:
+def demo_cmd(
+    profile: str = typer.Option("default", "--profile", help="Mock seed profile: default or nav."),
+) -> None:
     """Offline smoke: seed displays, add LaserScan, set frame/view, screenshot."""
     set_mode("mock")
     b = get_backend()
-    rprint(b.seed_demo())
+    rprint(b.seed_demo(profile=profile))
     rprint(b.doctor())
     rprint({"displays": b.list_displays()})
-    rprint(
-        {
-            "add": b.add_display(
-                "LaserScan",
-                "rviz_default_plugins/LaserScan",
-                "/scan",
-                True,
-            )
-        }
-    )
+    if not any(d.get("name") == "LaserScan" for d in b.list_displays()):
+        rprint(
+            {
+                "add": b.add_display(
+                    "LaserScan",
+                    "rviz_default_plugins/LaserScan",
+                    "/scan",
+                    True,
+                )
+            }
+        )
     rprint({"frame": b.set_fixed_frame("odom")})
     rprint({"view": b.set_view(distance=8.0, yaw=0.8, pitch=0.3)})
     rprint({"save": b.save_config("mock://demo.rviz")})

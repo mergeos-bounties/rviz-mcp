@@ -31,6 +31,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 rviz-mcp demo
+rviz-mcp demo --profile nav
 rviz-mcp doctor
 rviz-mcp status
 pytest -q
@@ -64,6 +65,17 @@ rviz-mcp serve
 | `rviz_set_view` | View controller type + look-at |
 | `rviz_load_config` / `rviz_save_config` | Config path (mock records path) |
 | `rviz_screenshot` | Mock screenshot path |
+
+---
+
+## Demo profiles
+
+The default mock seed includes Grid, TF, and RobotModel. The navigation profile
+adds Map, LaserScan, and GlobalPath displays for nav-stack demos:
+
+```powershell
+rviz-mcp demo --profile nav
+```
 
 ---
 

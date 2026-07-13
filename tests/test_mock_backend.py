@@ -7,9 +7,24 @@ def test_seed_and_displays():
     b = MockBackend()
     s = b.seed_demo()
     assert s["ok"] is True
+    assert s["profile"] == "default"
     displays = b.list_displays()
     assert any(d["name"] == "Grid" for d in displays)
     assert b.doctor()["ok"] is True
+
+
+def test_nav_seed_profile():
+    b = MockBackend()
+    s = b.seed_demo(profile="nav")
+    assert s["ok"] is True
+    assert s["profile"] == "nav"
+    displays = b.list_displays()
+    names = {d["name"] for d in displays}
+    assert {"Map", "LaserScan", "GlobalPath"}.issubset(names)
+    assert next(d for d in displays if d["name"] == "Map")["topic"] == "/map"
+    assert next(d for d in displays if d["name"] == "LaserScan")["topic"] == "/scan"
+    assert next(d for d in displays if d["name"] == "GlobalPath")["topic"] == "/plan"
+    assert b.doctor()["config_path"] == "mock://nav.rviz"
 
 
 def test_add_frame_view_shot():

@@ -12,7 +12,8 @@ class MockBackend:
     def __init__(self) -> None:
         self.seed_demo()
 
-    def seed_demo(self) -> dict[str, Any]:
+    def seed_demo(self, profile: str = "default") -> dict[str, Any]:
+        profile = (profile or "default").strip().lower()
         self._fixed_frame = "map"
         self._view = {
             "class": "rviz_default_plugins/Orbit",
@@ -21,7 +22,18 @@ class MockBackend:
             "yaw": 0.5,
             "pitch": 0.4,
         }
-        self._displays: dict[str, dict[str, Any]] = {
+        self._displays = self._seed_displays(profile)
+        self._config_path = f"mock://{profile}.rviz"
+        self._last_shot = None
+        return {
+            "ok": True,
+            "profile": profile,
+            "fixed_frame": self._fixed_frame,
+            "displays": list(self._displays),
+        }
+
+    def _seed_displays(self, profile: str) -> dict[str, dict[str, Any]]:
+        displays: dict[str, dict[str, Any]] = {
             "Grid": {
                 "name": "Grid",
                 "class": "rviz_default_plugins/Grid",
@@ -41,13 +53,30 @@ class MockBackend:
                 "topic": "/robot_description",
             },
         }
-        self._config_path = "mock://default.rviz"
-        self._last_shot = None
-        return {
-            "ok": True,
-            "fixed_frame": self._fixed_frame,
-            "displays": list(self._displays),
-        }
+        if profile == "nav":
+            displays.update(
+                {
+                    "Map": {
+                        "name": "Map",
+                        "class": "rviz_default_plugins/Map",
+                        "enabled": True,
+                        "topic": "/map",
+                    },
+                    "LaserScan": {
+                        "name": "LaserScan",
+                        "class": "rviz_default_plugins/LaserScan",
+                        "enabled": True,
+                        "topic": "/scan",
+                    },
+                    "GlobalPath": {
+                        "name": "GlobalPath",
+                        "class": "rviz_default_plugins/Path",
+                        "enabled": True,
+                        "topic": "/plan",
+                    },
+                }
+            )
+        return displays
 
     def doctor(self) -> dict[str, Any]:
         return {
