@@ -62,6 +62,9 @@ class LiveBackend:
     def remove_display(self, name: str) -> dict[str, Any]:
         return self._unsupported("remove_display")
 
+    def set_display_props(self, name: str, props_json: str = "{}") -> dict[str, Any]:
+        return self._unsupported("set_display_props")
+
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:
         return self._unsupported("set_fixed_frame")
 

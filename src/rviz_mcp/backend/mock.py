@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from typing import Any
 
@@ -27,18 +28,21 @@ class MockBackend:
                 "class": "rviz_default_plugins/Grid",
                 "enabled": True,
                 "topic": "",
+                "properties": {},
             },
             "TF": {
                 "name": "TF",
                 "class": "rviz_default_plugins/TF",
                 "enabled": True,
                 "topic": "/tf",
+                "properties": {},
             },
             "RobotModel": {
                 "name": "RobotModel",
                 "class": "rviz_default_plugins/RobotModel",
                 "enabled": True,
                 "topic": "/robot_description",
+                "properties": {},
             },
         }
         self._config_path = "mock://default.rviz"
@@ -78,6 +82,7 @@ class MockBackend:
             "class": class_name,
             "enabled": bool(enabled),
             "topic": topic,
+            "properties": {},
         }
         return {"ok": True, "display": self._displays[name]}
 
@@ -88,6 +93,28 @@ class MockBackend:
             return {"ok": False, "error": "cannot remove Grid in mock seed"}
         del self._displays[name]
         return {"ok": True, "removed": name}
+
+    def set_display_props(self, name: str, props_json: str = "{}") -> dict[str, Any]:
+        """Set optional properties on a display (color, size, alpha, etc.).
+
+        Args:
+            name: Display name to update.
+            props_json: JSON string with key/value properties to merge.
+
+        Returns:
+            dict with ok/error and the updated display.
+        """
+        if name not in self._displays:
+            return {"ok": False, "error": f"unknown display {name}"}
+        try:
+            props = json.loads(props_json)
+        except json.JSONDecodeError as exc:
+            return {"ok": False, "error": f"invalid JSON: {exc}"}
+        if not isinstance(props, dict):
+            return {"ok": False, "error": "props_json must decode to a JSON object"}
+        current = self._displays[name].setdefault("properties", {})
+        current.update(props)
+        return {"ok": True, "display": self._displays[name]}
 
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:
         frame = (frame or "map").strip()
