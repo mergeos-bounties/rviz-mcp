@@ -23,6 +23,7 @@ class MockBackend:
             "pitch": 0.4,
         }
         self._displays = self._seed_displays(profile)
+        self._panels = self._seed_panels()
         self._config_path = f"mock://{profile}.rviz"
         self._last_shot = None
         return {
@@ -78,6 +79,28 @@ class MockBackend:
             )
         return displays
 
+    def _seed_panels(self) -> dict[str, dict[str, Any]]:
+        return {
+            "Displays": {
+                "class": "rviz_common/Displays",
+                "name": "Displays",
+                "dock": "left",
+                "visible": True,
+            },
+            "Views": {
+                "class": "rviz_common/Views",
+                "name": "Views",
+                "dock": "right",
+                "visible": True,
+            },
+            "Time": {
+                "class": "rviz_common/Time",
+                "name": "Time",
+                "dock": "bottom",
+                "visible": True,
+            },
+        }
+
     def doctor(self) -> dict[str, Any]:
         return {
             "ok": True,
@@ -92,6 +115,9 @@ class MockBackend:
 
     def list_displays(self) -> list[dict[str, Any]]:
         return list(self._displays.values())
+
+    def list_panels(self) -> list[dict[str, Any]]:
+        return list(self._panels.values())
 
     def config_snapshot(self) -> dict[str, Any]:
         """Full snapshot of the current mock RViz config.
@@ -108,11 +134,7 @@ class MockBackend:
             "view": dict(self._view),
             "displays": displays,
             "display_count": len(displays),
-            "panels": [
-                {"class": "rviz_common/Displays", "name": "Displays"},
-                {"class": "rviz_common/Views", "name": "Views"},
-                {"class": "rviz_common/Tool Properties", "name": "Tool Properties"},
-            ],
+            "panels": [dict(p) for p in self._panels.values()],
             "config_path": self._config_path,
         }
 
@@ -139,6 +161,33 @@ class MockBackend:
         if name == "Grid":
             return {"ok": False, "error": "cannot remove Grid in mock seed"}
         del self._displays[name]
+        return {"ok": True, "removed": name}
+
+    def add_panel(
+        self,
+        name: str,
+        class_name: str = "rviz_common/Panel",
+        dock: str = "left",
+        visible: bool = True,
+    ) -> dict[str, Any]:
+        name = (name or "").strip()
+        if not name:
+            return {"ok": False, "error": "panel name required"}
+        if name in self._panels:
+            return {"ok": False, "error": f"panel {name} already exists"}
+        self._panels[name] = {
+            "name": name,
+            "class": class_name,
+            "dock": dock or "left",
+            "visible": bool(visible),
+        }
+        return {"ok": True, "panel": self._panels[name]}
+
+    def remove_panel(self, name: str) -> dict[str, Any]:
+        name = (name or "").strip()
+        if name not in self._panels:
+            return {"ok": False, "error": f"unknown panel {name}"}
+        del self._panels[name]
         return {"ok": True, "removed": name}
 
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:

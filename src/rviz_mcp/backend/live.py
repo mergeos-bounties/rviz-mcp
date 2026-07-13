@@ -86,6 +86,9 @@ class LiveBackend:
     def list_displays(self) -> list[dict[str, Any]]:
         return []
 
+    def list_panels(self) -> list[dict[str, Any]]:
+        return []
+
     def add_display(
         self,
         name: str,
@@ -97,6 +100,18 @@ class LiveBackend:
 
     def remove_display(self, name: str) -> dict[str, Any]:
         return self._unsupported("remove_display")
+
+    def add_panel(
+        self,
+        name: str,
+        class_name: str = "rviz_common/Panel",
+        dock: str = "left",
+        visible: bool = True,
+    ) -> dict[str, Any]:
+        return self._unsupported("add_panel")
+
+    def remove_panel(self, name: str) -> dict[str, Any]:
+        return self._unsupported("remove_panel")
 
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:
         return self._unsupported("set_fixed_frame")

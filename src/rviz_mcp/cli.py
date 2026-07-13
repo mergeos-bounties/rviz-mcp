@@ -22,8 +22,11 @@ TOOL_NAMES = [
     "rviz_doctor",
     "rviz_seed_demo",
     "rviz_list_displays",
+    "rviz_list_panels",
     "rviz_add_display",
     "rviz_remove_display",
+    "rviz_add_panel",
+    "rviz_remove_panel",
     "rviz_set_fixed_frame",
     "rviz_set_view",
     "rviz_load_config",
@@ -122,6 +125,7 @@ def call_cmd(
         "rviz_doctor": b.doctor,
         "rviz_seed_demo": b.seed_demo,
         "rviz_list_displays": b.list_displays,
+        "rviz_list_panels": b.list_panels,
         "rviz_add_display": lambda: b.add_display(
             str(kv.get("name", "Marker")),
             str(kv.get("class_name", "rviz_default_plugins/Marker")),
@@ -129,6 +133,13 @@ def call_cmd(
             bool(kv.get("enabled", True)),
         ),
         "rviz_remove_display": lambda: b.remove_display(str(kv.get("name", ""))),
+        "rviz_add_panel": lambda: b.add_panel(
+            str(kv.get("name", "Panel")),
+            str(kv.get("class_name", "rviz_common/Panel")),
+            str(kv.get("dock", "left")),
+            bool(kv.get("visible", True)),
+        ),
+        "rviz_remove_panel": lambda: b.remove_panel(str(kv.get("name", ""))),
         "rviz_set_fixed_frame": lambda: b.set_fixed_frame(str(kv.get("frame", "map"))),
         "rviz_set_view": lambda: b.set_view(
             str(kv.get("view_class", "rviz_default_plugins/Orbit")),

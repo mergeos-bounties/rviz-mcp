@@ -27,6 +27,25 @@ def test_nav_seed_profile():
     assert b.doctor()["config_path"] == "mock://nav.rviz"
 
 
+def test_seed_and_manage_panels():
+    b = MockBackend()
+    panels = b.list_panels()
+    names = {p["name"] for p in panels}
+    assert {"Displays", "Views", "Time"}.issubset(names)
+
+    add = b.add_panel("Selection", "rviz_common/Selection", "left")
+    assert add["ok"] is True
+    assert add["panel"]["dock"] == "left"
+    assert any(p["name"] == "Selection" for p in b.config_snapshot()["panels"])
+
+    duplicate = b.add_panel("Selection")
+    assert duplicate["ok"] is False
+
+    remove = b.remove_panel("Selection")
+    assert remove["ok"] is True
+    assert not any(p["name"] == "Selection" for p in b.list_panels())
+
+
 def test_add_frame_view_shot():
     b = MockBackend()
     b.seed_demo()

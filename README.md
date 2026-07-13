@@ -61,6 +61,8 @@ rviz-mcp serve
 | `rviz_seed_demo` | Reset mock displays (Grid, TF, RobotModel) |
 | `rviz_list_displays` | Current display tree |
 | `rviz_add_display` / `rviz_remove_display` | Manage displays |
+| `rviz_list_panels` | Current panel layout |
+| `rviz_add_panel` / `rviz_remove_panel` | Manage mock UI panels |
 | `rviz_set_fixed_frame` | Fixed frame (e.g. `map`, `odom`) |
 | `rviz_set_view` | View controller type + look-at |
 | `rviz_load_config` / `rviz_save_config` | Config path (mock records path) |
@@ -97,7 +99,11 @@ Example payload:
     { "name": "Grid", "class": "rviz_default_plugins/Grid", "enabled": true, "topic": "" }
   ],
   "display_count": 3,
-  "panels": [ { "class": "rviz_common/Displays", "name": "Displays" } ],
+  "panels": [
+    { "class": "rviz_common/Displays", "name": "Displays", "dock": "left", "visible": true },
+    { "class": "rviz_common/Views", "name": "Views", "dock": "right", "visible": true },
+    { "class": "rviz_common/Time", "name": "Time", "dock": "bottom", "visible": true }
+  ],
   "config_path": "mock://default.rviz"
 }
 ```

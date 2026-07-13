@@ -74,6 +74,12 @@ def rviz_list_displays() -> str:
 
 
 @mcp.tool()
+def rviz_list_panels() -> str:
+    """List RViz UI panels in the current layout."""
+    return _j(get_backend().list_panels())
+
+
+@mcp.tool()
 def rviz_add_display(
     name: str,
     class_name: str = "rviz_default_plugins/Marker",
@@ -88,6 +94,23 @@ def rviz_add_display(
 def rviz_remove_display(name: str) -> str:
     """Remove a display by name."""
     return _j(get_backend().remove_display(name))
+
+
+@mcp.tool()
+def rviz_add_panel(
+    name: str,
+    class_name: str = "rviz_common/Panel",
+    dock: str = "left",
+    visible: bool = True,
+) -> str:
+    """Add a mock RViz UI panel to the layout."""
+    return _j(get_backend().add_panel(name, class_name, dock, visible))
+
+
+@mcp.tool()
+def rviz_remove_panel(name: str) -> str:
+    """Remove a mock RViz UI panel by name."""
+    return _j(get_backend().remove_panel(name))
 
 
 @mcp.tool()
