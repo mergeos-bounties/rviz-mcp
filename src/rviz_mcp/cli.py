@@ -163,6 +163,47 @@ def serve_cmd() -> None:
     run_stdio()
 
 
+
+
+
+@app.command("export-config")
+def export_config_cmd(
+    out: Optional[str] = typer.Option(None, "--out", "-o", help="Write to this path instead of stdout."),
+    json_out: bool = typer.Option(False, "--json", help="Emit JSON instead of YAML."),
+) -> None:
+    """Export the current mock RViz config as a simplified .rviz-like YAML.
+
+    Round-trips into the mock backend via ``rviz-mcp load-config`` if the
+    output path starts with ``mock://``. See README § Limitations.
+    """
+    from rviz_mcp.commands.export_config import export_config as _export, to_yaml
+
+    b = get_backend()
+    text_out = _export(b)
+
+    if json_out:
+        import json as _json
+
+        # Re-parse the YAML to JSON-equivalent (use yaml if available)
+        try:
+            import yaml as _y
+        except ImportError:
+            typer.echo("--json requires PyYAML (pip install pyyaml)", err=True)
+            raise typer.Exit(code=2)
+        typer.echo(_json.dumps(_y.safe_load(text_out), indent=2))
+    else:
+        typer.echo(text_out)
+
+    if out:
+        from pathlib import Path
+
+        p = Path(out)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text_out, encoding="utf-8")
+        typer.echo(f"wrote {p}")
+
+
+
 def main() -> None:
     app()
 
