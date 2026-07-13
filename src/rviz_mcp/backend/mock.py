@@ -64,6 +64,29 @@ class MockBackend:
     def list_displays(self) -> list[dict[str, Any]]:
         return list(self._displays.values())
 
+    def config_snapshot(self) -> dict[str, Any]:
+        """Full snapshot of the current mock RViz config.
+
+        Returns fixed_frame, the view controller, the display tree, panel
+        layout, and the tracked config path — the shape served by the
+        ``rviz://config`` MCP resource.
+        """
+        displays = [dict(d) for d in self._displays.values()]
+        return {
+            "ok": True,
+            "mode": "mock",
+            "fixed_frame": self._fixed_frame,
+            "view": dict(self._view),
+            "displays": displays,
+            "display_count": len(displays),
+            "panels": [
+                {"class": "rviz_common/Displays", "name": "Displays"},
+                {"class": "rviz_common/Views", "name": "Views"},
+                {"class": "rviz_common/Tool Properties", "name": "Tool Properties"},
+            ],
+            "config_path": self._config_path,
+        }
+
     def add_display(
         self,
         name: str,

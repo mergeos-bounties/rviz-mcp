@@ -67,6 +67,31 @@ rviz-mcp serve
 
 ---
 
+## Resources
+
+| URI | Purpose |
+| --- | --- |
+| `rviz://config` | Read-only snapshot of the current config: `fixed_frame`, `view`, `displays` (with `display_count`), `panels`, and `config_path`. Served from the mock display tree offline. |
+
+Example payload:
+
+```json
+{
+  "ok": true,
+  "mode": "mock",
+  "fixed_frame": "map",
+  "view": { "class": "rviz_default_plugins/Orbit", "distance": 10.0 },
+  "displays": [
+    { "name": "Grid", "class": "rviz_default_plugins/Grid", "enabled": true, "topic": "" }
+  ],
+  "display_count": 3,
+  "panels": [ { "class": "rviz_common/Displays", "name": "Displays" } ],
+  "config_path": "mock://default.rviz"
+}
+```
+
+---
+
 ## Examples
 
 - [examples/cursor_mcp.json](examples/cursor_mcp.json)

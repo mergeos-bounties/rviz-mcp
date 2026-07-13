@@ -23,6 +23,29 @@ def _j(data: Any) -> str:
     return json.dumps(data, indent=2, default=str)
 
 
+@mcp.resource("rviz://config")
+def rviz_config_resource() -> str:
+    """Snapshot of the current RViz config (fixed_frame, view, displays, panels).
+
+    Read-only MCP resource addressable at ``rviz://config``. In mock mode it
+    returns the in-memory display tree; in live mode it surfaces whatever the
+    backend can report.
+    """
+    b = get_backend()
+    snap = getattr(b, "config_snapshot", None)
+    if callable(snap):
+        return _j(snap())
+    return _j(
+        {
+            "ok": True,
+            "mode": get_mode(),
+            "backend": b.name,
+            "displays": b.list_displays(),
+            "doctor": b.doctor(),
+        }
+    )
+
+
 @mcp.tool()
 def rviz_mode(mode: str | None = None) -> str:
     """Get or set RViz backend mode (mock|live)."""

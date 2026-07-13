@@ -27,3 +27,17 @@ def test_add_frame_view_shot():
 def test_get_backend_mock():
     set_mode("mock")
     assert get_backend().name == "mock"
+
+
+def test_config_snapshot_shape():
+    b = MockBackend()
+    b.seed_demo()
+    b.set_fixed_frame("odom")
+    snap = b.config_snapshot()
+    assert snap["ok"] is True
+    assert snap["fixed_frame"] == "odom"
+    assert snap["display_count"] == len(snap["displays"])
+    assert any(d["name"] == "Grid" for d in snap["displays"])
+    assert snap["view"]["class"].startswith("rviz_default_plugins/")
+    assert any(p["class"] == "rviz_common/Displays" for p in snap["panels"])
+    assert snap["config_path"]
