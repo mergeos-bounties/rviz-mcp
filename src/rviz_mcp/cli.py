@@ -31,6 +31,7 @@ TOOL_NAMES = [
     "rviz_set_view",
     "rviz_load_config",
     "rviz_save_config",
+    "rviz_export_config",
     "rviz_screenshot",
 ]
 
@@ -149,6 +150,9 @@ def call_cmd(
         ),
         "rviz_load_config": lambda: b.load_config(str(kv.get("path", "mock://default.rviz"))),
         "rviz_save_config": lambda: b.save_config(str(kv.get("path", "mock://saved.rviz"))),
+        "rviz_export_config": lambda: b.export_config(
+            None if kv.get("path") is None else str(kv["path"])
+        ),
         "rviz_screenshot": lambda: b.screenshot(kv.get("path")),
     }
     if name not in dispatch:

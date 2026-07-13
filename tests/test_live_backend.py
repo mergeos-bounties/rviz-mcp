@@ -117,3 +117,11 @@ def test_live_load_config_fails_closed_when_bridge_down(monkeypatch):
     assert result["connected"] is False
     assert result["mode"] == "live"
     assert "error" in result
+
+
+def test_live_export_config_is_rejected_explicitly():
+    result = LiveBackend().export_config("out.rviz")
+
+    assert result["ok"] is False
+    assert result["mode"] == "live"
+    assert "mock-only" in result["error"]
