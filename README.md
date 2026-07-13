@@ -96,6 +96,7 @@ Example payload:
 
 - [examples/cursor_mcp.json](examples/cursor_mcp.json)
 - [examples/claude_desktop_config.json](examples/claude_desktop_config.json)
+- [docs/LIVE_BRIDGE.md](docs/LIVE_BRIDGE.md) for live bridge load_config and screenshot endpoints
 
 ---
 

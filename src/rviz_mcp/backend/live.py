@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from rviz_mcp.config import bridge_file, bridge_url
@@ -13,22 +14,57 @@ from rviz_mcp.config import bridge_file, bridge_url
 class LiveBackend:
     name = "live"
 
+    def _request_json(self, endpoint: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        url = bridge_url()
+        if not url:
+            return {
+                "ok": False,
+                "connected": False,
+                "mode": "live",
+                "message": "Set RVIZ_MCP_BRIDGE_URL for live HTTP bridge mode",
+            }
+        method = "POST" if payload is not None else "GET"
+        data = json.dumps(payload).encode("utf-8") if payload is not None else None
+        headers = {"Content-Type": "application/json"} if payload is not None else {}
+        try:
+            target = url.rstrip("/") + endpoint
+            with urlopen(Request(target, data=data, headers=headers, method=method), timeout=2) as resp:
+                raw = resp.read().decode("utf-8", errors="replace")
+        except (HTTPError, URLError, TimeoutError, OSError) as exc:
+            return {"ok": False, "connected": False, "mode": "live", "error": str(exc)}
+
+        try:
+            result = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            return {
+                "ok": False,
+                "connected": False,
+                "mode": "live",
+                "error": f"bridge returned invalid JSON from {endpoint}: {exc}",
+            }
+        if not isinstance(result, dict):
+            return {
+                "ok": False,
+                "connected": False,
+                "mode": "live",
+                "error": f"bridge returned non-object JSON from {endpoint}",
+            }
+        return result
+
     def doctor(self) -> dict[str, Any]:
         url = bridge_url()
         path = bridge_file()
         if url:
-            try:
-                with urlopen(Request(url.rstrip("/") + "/health", method="GET"), timeout=2) as resp:
-                    body = resp.read().decode("utf-8", errors="replace")
-                return {
-                    "ok": True,
-                    "connected": True,
-                    "mode": "live",
-                    "bridge": "http",
-                    "health": body[:500],
-                }
-            except (URLError, TimeoutError, OSError) as exc:
-                return {"ok": False, "connected": False, "mode": "live", "error": str(exc)}
+            data = self._request_json("/health")
+            if not data.get("ok", True):
+                return data
+            return {
+                "ok": True,
+                "connected": True,
+                "mode": "live",
+                "bridge": "http",
+                "health": data,
+            }
         if path and Path(path).is_file():
             return {"ok": True, "connected": True, "mode": "live", "bridge": "file", "path": path}
         return {
@@ -75,10 +111,23 @@ class LiveBackend:
         return self._unsupported("set_view")
 
     def load_config(self, path: str) -> dict[str, Any]:
+        url = bridge_url()
+        if url:
+            data = self._request_json("/load_config", {"path": path})
+            if not data.get("ok", True):
+                return data
+            return {"ok": True, **data}
         return self._unsupported("load_config")
 
     def save_config(self, path: str) -> dict[str, Any]:
         return self._unsupported("save_config")
 
     def screenshot(self, path: str | None = None) -> dict[str, Any]:
+        url = bridge_url()
+        if url:
+            payload = {"path": path} if path else {}
+            data = self._request_json("/screenshot", payload)
+            if not data.get("ok", True):
+                return data
+            return {"ok": True, **data}
         return self._unsupported("screenshot")
