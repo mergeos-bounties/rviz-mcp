@@ -137,6 +137,14 @@ class LiveBackend:
     def save_config(self, path: str) -> dict[str, Any]:
         return self._unsupported("save_config")
 
+    def export_config(self, path: str | None = None) -> dict[str, Any]:
+        """Reject the mock-only export explicitly in live mode."""
+        return {
+            "ok": False,
+            "mode": "live",
+            "error": "export_config is mock-only; switch to mock mode before exporting",
+        }
+
     def screenshot(self, path: str | None = None) -> dict[str, Any]:
         url = bridge_url()
         if url:

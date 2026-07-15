@@ -145,6 +145,7 @@ rviz-mcp serve
 | `rviz_set_fixed_frame` | Fixed frame (e.g. `map`, `odom`) |
 | `rviz_set_view` | View controller type + look-at |
 | `rviz_load_config` / `rviz_save_config` | Config path (mock records path) |
+| `rviz_export_config` | Export the mock config as human-readable, RViz-like YAML |
 | `rviz_screenshot` | Mock screenshot path |
 
 ---
@@ -190,6 +191,38 @@ adds Map, LaserScan, and GlobalPath displays for nav-stack demos:
 ```powershell
 rviz-mcp demo --profile nav
 ```
+
+---
+
+## Export mock config
+
+Export the current mock display tree, panels, fixed frame, and view as
+human-readable, RViz-like YAML. Omit `path` to return the export through the
+CLI/MCP response, or provide a local output path to write it:
+
+```powershell
+rviz-mcp call export_config
+rviz-mcp call export_config path=out/mock-config.rviz
+```
+
+MCP hosts can call `rviz_export_config` with an optional `path` string:
+
+```json
+{
+  "path": "out/mock-config.rviz"
+}
+```
+
+File exports require a `.rviz` suffix and refuse to overwrite an existing
+file or write through a symlink/junction parent. Choose a new output path for
+each export.
+
+This export is designed for the offline mock backend, human inspection, and
+round-tripping by YAML consumers. It is an RViz-like representation, not a
+guarantee of byte-for-byte output or complete behavioral fidelity with native
+RViz2 configuration files, plugins, or version-specific schemas. The current
+mock `load_config` command records a path but does not rehydrate an export into
+memory. Review an export before using it with a native RViz2 installation.
 
 ---
 

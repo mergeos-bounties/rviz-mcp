@@ -143,6 +143,12 @@ def rviz_save_config(path: str) -> str:
 
 
 @mcp.tool()
+def rviz_export_config(path: str | None = None) -> str:
+    """Export the current mock config as human-readable, RViz-like YAML."""
+    return _j(get_backend().export_config(path))
+
+
+@mcp.tool()
 def rviz_screenshot(path: str | None = None) -> str:
     """Capture a mock screenshot path (live bridge may write a real PNG)."""
     return _j(get_backend().screenshot(path))

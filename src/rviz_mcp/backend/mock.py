@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import os
+import stat
 import time
+from pathlib import Path
+import tempfile
 from typing import Any
+
+from rviz_mcp.yaml_export import serialize_rviz_config
 
 
 class MockBackend:
@@ -226,7 +232,90 @@ class MockBackend:
             "fixed_frame": self._fixed_frame,
         }
 
+    def export_config(self, path: str | None = None) -> dict[str, Any]:
+        """Export the current mock state as a simplified, RViz-like YAML document."""
+        snapshot = self.config_snapshot()
+        try:
+            yaml_text = serialize_rviz_config(snapshot)
+        except (TypeError, ValueError) as exc:
+            return {"ok": False, "error": f"could not serialize export: {exc}"}
+        result: dict[str, Any] = {
+            "ok": True,
+            "format": "rviz-yaml",
+            "fixed_frame": self._fixed_frame,
+            "display_count": len(self._displays),
+        }
+        if path is None:
+            result["yaml"] = yaml_text
+            result["bytes"] = len(yaml_text.encode("utf-8"))
+            return result
+
+        raw_path = path.strip()
+        if not raw_path:
+            return {"ok": False, "error": "export path must not be empty"}
+        if "://" in raw_path:
+            return {"ok": False, "error": "export path must be a local filesystem path"}
+
+        output = Path(raw_path).expanduser()
+        temp_path: Path | None = None
+        try:
+            if output.is_dir():
+                raise IsADirectoryError(f"export path is a directory: {output}")
+            if output.suffix.lower() != ".rviz":
+                raise ValueError("export path must use the .rviz extension")
+            if output.exists() or output.is_symlink():
+                raise FileExistsError(f"export path already exists: {output}")
+            if _has_linked_parent(output):
+                raise OSError(f"export path has a symlink or junction parent: {output}")
+            output.parent.mkdir(parents=True, exist_ok=True)
+            if _has_linked_parent(output):
+                raise OSError(f"export path has a symlink or junction parent: {output}")
+
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                dir=output.parent,
+                prefix=f".{output.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as temporary:
+                temp_path = Path(temporary.name)
+                temporary.write(yaml_text.encode("utf-8"))
+                temporary.flush()
+                os.fsync(temporary.fileno())
+
+            # A hard link publishes the completed bytes atomically and fails
+            # if another process created the destination after our checks.
+            os.link(temp_path, output)
+        except (OSError, ValueError) as exc:
+            return {"ok": False, "error": f"could not write export: {exc}"}
+        finally:
+            if temp_path is not None:
+                temp_path.unlink(missing_ok=True)
+
+        result.update({"path": str(output), "bytes": len(yaml_text.encode("utf-8"))})
+        return result
+
     def screenshot(self, path: str | None = None) -> dict[str, Any]:
         out = path or f"mock_rviz_{int(time.time())}.png"
         self._last_shot = out
         return {"ok": True, "path": out, "mock": True, "bytes": 0}
+
+
+def _has_linked_parent(path: Path) -> bool:
+    """Return whether an existing parent is a symlink or Windows junction."""
+    parent = path.parent
+    while True:
+        if parent.exists() and _is_link_or_reparse_point(parent):
+            return True
+        if parent == parent.parent:
+            return False
+        parent = parent.parent
+
+
+def _is_link_or_reparse_point(path: Path) -> bool:
+    """Detect symlinks and Windows reparse points on Python 3.11+."""
+    if path.is_symlink():
+        return True
+    attributes = getattr(os.lstat(path), "st_file_attributes", 0)
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    return bool(attributes & reparse_flag)
