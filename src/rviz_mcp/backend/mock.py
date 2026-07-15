@@ -230,3 +230,74 @@ class MockBackend:
         out = path or f"mock_rviz_{int(time.time())}.png"
         self._last_shot = out
         return {"ok": True, "path": out, "mock": True, "bytes": 0}
+
+    def toggle_topic_visibility(self, display_name: str, topic: str) -> dict[str, Any]:
+        """Toggle topic visibility for a display."""
+        disp = self._displays.get(display_name)
+        if not disp:
+            return {"ok": False, "error": f"display {display_name} not found"}
+        topics = disp.setdefault("topics", [])
+        if topic in topics:
+            topics.remove(topic)
+            return {"ok": True, "display": display_name, "topic": topic, "visible": False}
+        else:
+            topics.append(topic)
+            return {"ok": True, "display": display_name, "topic": topic, "visible": True}
+
+    def get_topic_visibility(self, display_name: str) -> dict[str, Any]:
+        disp = self._displays.get(display_name)
+        if not disp:
+            return {"ok": False, "error": f"display {display_name} not found"}
+        return {"ok": True, "display": display_name, "topics": disp.get("topics", [])}
+
+    def view_presets(self) -> dict[str, Any]:
+        """List view controller presets."""
+        return {
+            "ok": True,
+            "presets": {
+                "orbit": {"type": "orbit", "distance": 5.0, "yaw": 0.0, "pitch": 0.8},
+                "fps": {"type": "fps", "position": [0, 0, 2], "look_at": [0, 0, 0]},
+                "top_down": {"type": "top_down_ortho", "scale": 10.0},
+                "front": {"type": "orbit", "yaw": 0.0, "pitch": 0.0},
+            }
+        }
+
+    def set_view_preset(self, name: str) -> dict[str, Any]:
+        presets = self.view_presets()["presets"]
+        if name not in presets:
+            return {"ok": False, "error": f"unknown preset: {name}. Available: {sorted(presets)}"}
+        preset = presets[name]
+        self._views["current"] = preset
+        return {"ok": True, "preset": name, "view": preset}
+
+    def display_properties(self, display_name: str) -> dict[str, Any]:
+        """Get display property bag (color, size, alpha)."""
+        disp = self._displays.get(display_name)
+        if not disp:
+            return {"ok": False, "error": f"display {display_name} not found"}
+        return {
+            "ok": True,
+            "display": display_name,
+            "properties": {
+                "color": disp.get("color", [255, 255, 255]),
+                "size": disp.get("size", 0.05),
+                "alpha": disp.get("alpha", 1.0),
+                "type": disp.get("type", "?"),
+                "fixed_frame": disp.get("fixed_frame", "map"),
+            }
+        }
+
+    def update_display_properties(
+        self, display_name: str, color: list[float] | None = None,
+        size: float | None = None, alpha: float | None = None,
+    ) -> dict[str, Any]:
+        disp = self._displays.get(display_name)
+        if not disp:
+            return {"ok": False, "error": f"display {display_name} not found"}
+        if color:
+            disp["color"] = [float(c) for c in color[:3]]
+        if size is not None:
+            disp["size"] = float(size)
+        if alpha is not None:
+            disp["alpha"] = float(alpha)
+        return self.display_properties(display_name)

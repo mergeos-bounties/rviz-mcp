@@ -170,3 +170,44 @@ def rviz_export_config() -> str:
 
 def run_stdio() -> None:
     mcp.run(transport="stdio")
+
+
+@mcp.tool()
+def rviz_toggle_topic(display_name: str, topic: str) -> str:
+    """Toggle topic visibility for a display."""
+    return _j(get_backend().toggle_topic_visibility(display_name, topic))
+
+
+@mcp.tool()
+def rviz_topic_visibility(display_name: str) -> str:
+    """Get visible topics for a display."""
+    return _j(get_backend().get_topic_visibility(display_name))
+
+
+@mcp.tool()
+def rviz_view_presets() -> str:
+    """List view controller presets (orbit, fps, top_down, front)."""
+    return _j(get_backend().view_presets())
+
+
+@mcp.tool()
+def rviz_set_view_preset(name: str) -> str:
+    """Set view controller to a named preset."""
+    return _j(get_backend().set_view_preset(name))
+
+
+@mcp.tool()
+def rviz_display_properties(display_name: str) -> str:
+    """Get display property bag (color, size, alpha, type)."""
+    return _j(get_backend().display_properties(display_name))
+
+
+@mcp.tool()
+def rviz_update_display(
+    display_name: str,
+    color: list[float] | None = None,
+    size: float | None = None,
+    alpha: float | None = None,
+) -> str:
+    """Update display properties (color, size, alpha)."""
+    return _j(get_backend().update_display_properties(display_name, color, size, alpha))
