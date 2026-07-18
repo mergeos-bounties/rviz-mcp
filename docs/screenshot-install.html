@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>rviz-mcp Terminal</title>
+<style>
+body { background: #1e1e1e; margin: 20px; font-family: 'SF Mono', Menlo, monospace; font-size: 14px; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; border: 1px solid #333; line-height: 1.5; overflow: auto; }
+.prompt { color: #569cd6; }
+.cmd { color: #ce9178; }
+.out { color: #b5cea8; }
+.info { color: #6a9955; }
+.title { color: #4fc1ff; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<pre>
+<div class="title">Step 1: Install rviz-mcp</div>
+<span class="prompt">$</span> <span class="cmd">pip install "git+https://github.com/mergeos-bounties/rviz-mcp.git"</span>
+<span class="info">Collecting rviz-mcp from git+https://github.com/mergeos-bounties/rviz-mcp.git</span>
+<span class="info">  Cloning https://github.com/mergeos-bounties/rviz-mcp.git</span>
+<span class="info">  Installing build dependencies ... done</span>
+<span class="info">Successfully installed rviz-mcp-0.1.0 mcp-1.28.1 typer-0.27.0 rich-15.0.0</span>
+
+<div class="title">Step 2: Check installation</div>
+<span class="prompt">$</span> <span class="cmd">rviz-mcp version</span>
+<span class="out">{'version': '0.1.0', 'mode': 'mock'}</span>
+<span class="prompt">$</span> <span class="cmd">rviz-mcp doctor</span>
+<span class="out">{'ok': True, 'connected': True, 'mode': 'mock',</span>
+<span class="out"> 'rviz_required': False,</span>
+<span class="out"> 'message': 'Mock RViz config active — no RViz install needed',</span>
+<span class="out"> 'fixed_frame': 'map', 'display_count': 3,</span>
+<span class="out"> 'config_path': 'mock://default.rviz',</span>
+<span class="out"> 'rviz_mcp_version': '0.1.0'}</span>
+
+<div class="title">Step 3: Run mock demo</div>
+<span class="prompt">$</span> <span class="cmd">rviz-mcp demo</span>
+<span class="out">{'ok': True, 'profile': 'default', 'fixed_frame': 'map',</span>
+<span class="out"> 'displays': ['Grid', 'TF', 'RobotModel']}</span>
+<span class="prompt">$</span> <span class="cmd">rviz-mcp status --json</span>
+<span class="out">{"fixed_frame": "map", "display_count": 3, "mode": "mock", "version": "0.1.0"}</span>
+
+<div class="title">Step 4: Start MCP server</div>
+<span class="prompt">$</span> <span class="cmd">rviz-mcp serve</span>
+<span class="info">rviz-mcp MCP server starting in mock mode...</span>
+<span class="info">Listening on stdio (MCP protocol)</span>
+</pre>
+</body>
+</html>

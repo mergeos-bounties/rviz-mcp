@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>rviz-mcp Demo Output</title>
+<style>
+body { background: #1e1e1e; margin: 20px; font-family: 'SF Mono', Menlo, monospace; font-size: 14px; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; border: 1px solid #333; line-height: 1.5; overflow: auto; }
+.prompt { color: #569cd6; }
+.cmd { color: #ce9178; }
+.out { color: #b5cea8; }
+.info { color: #6a9955; }
+.title { color: #4fc1ff; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<pre>
+<div class="title">Mock Demo: full display tree &amp; export</div>
+
+<span class="prompt">$</span> <span class="cmd">rviz-mcp demo</span>
+<span class="out">{'ok': True, 'profile': 'default', 'fixed_frame': 'map',</span>
+<span class="out"> 'displays': ['Grid', 'TF', 'RobotModel']}</span>
+
+<span class="prompt">$</span> <span class="cmd">rviz-mcp status --json</span>
+<span class="out">{</span>
+<span class="out">  "fixed_frame": "map",</span>
+<span class="out">  "display_count": 3,</span>
+<span class="out">  "mode": "mock",</span>
+<span class="out">  "version": "0.1.0"</span>
+<span class="out">}</span>
+
+<span class="prompt">$</span> <span class="cmd">rviz-mcp export-config</span>
+<span class="out">ok: true</span>
+<span class="out">mode: mock</span>
+<span class="out">fixed_frame: map</span>
+<span class="out">view:</span>
+<span class="out">  class: rviz_default_plugins/Orbit</span>
+<span class="out">  distance: 10.0</span>
+<span class="out">displays:</span>
+<span class="out">  - name: Grid</span>
+<span class="out">    class: rviz_default_plugins/Grid</span>
+<span class="out">    enabled: true</span>
+<span class="out">  - name: TF</span>
+<span class="out">    class: rviz_default_plugins/TF</span>
+<span class="out">    enabled: true</span>
+<span class="out">  - name: RobotModel</span>
+<span class="out">    class: rviz_default_plugins/RobotModel</span>
+<span class="out">    enabled: true</span>
+<span class="out">display_count: 3</span>
+<span class="out">config_path: mock://default.rviz</span>
+
+<div class="title">Mock Demo: navigation profile</div>
+
+<span class="prompt">$</span> <span class="cmd">rviz-mcp demo --profile nav</span>
+<span class="out">{'ok': True, 'profile': 'nav', 'fixed_frame': 'map',</span>
+<span class="out"> 'displays': ['Grid', 'TF', 'RobotModel', 'Map', 'LaserScan', 'GlobalPath']}</span>
+</pre>
+</body>
+</html>

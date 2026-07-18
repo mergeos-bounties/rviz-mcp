@@ -225,6 +225,7 @@ Example payload:
 
 ## Examples
 
+- [docs/HOST_SETUP.md](docs/HOST_SETUP.md) — step-by-step installation guide with screenshots for Cursor, Claude Desktop, and Grok
 - [examples/cursor_mcp.json](examples/cursor_mcp.json)
 - [examples/claude_desktop_config.json](examples/claude_desktop_config.json)
 - [docs/LIVE_BRIDGE.md](docs/LIVE_BRIDGE.md) for live bridge load_config and screenshot endpoints
