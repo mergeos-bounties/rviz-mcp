@@ -301,3 +301,99 @@ class MockBackend:
         if alpha is not None:
             disp["alpha"] = float(alpha)
         return self.display_properties(display_name)
+
+    def export_rviz_yaml(self) -> dict[str, Any]:
+        """Export the current mock config as a .rviz-compatible YAML dict.
+
+        The output can be serialised to YAML and round-tripped into a real
+        RViz2 instance with limited fidelity (see export limitations below).
+        """
+        import io, yaml
+
+        snap = self.config_snapshot()
+
+        # Build the .rviz YAML structure
+        rviz_doc: dict[str, Any] = {
+            "Panels": [
+                {
+                    "Class": p["class"],
+                    "Embedded": False,
+                    "Floating": False,
+                    "Name": p.get("name", p["class"].split("/")[-1]),
+                    "Title": p.get("name", p["class"].split("/")[-1]),
+                    "Visible": p.get("visible", True),
+                }
+                for p in snap.get("panels", [])
+            ],
+            "Visualization Manager": {
+                "Displays": [
+                    self._display_to_rviz(display)
+                    for display in snap.get("displays", [])
+                ],
+                "Enabled": True,
+                "Global Options": {
+                    "Background Color": [48, 48, 48],
+                    "Fixed Frame": snap.get("fixed_frame", "map"),
+                    "Frame Rate": 30,
+                    "Sync": False,
+                },
+                "Help": {},
+                "Name": "Root",
+                "Selection": "",
+                "Sim Time": True,
+            },
+        }
+
+        view = snap.get("view", {})
+        rviz_doc["Visualization Manager"]["View Controllers"] = [
+            {
+                "Class": view.get("class", "rviz_default_plugins/Orbit"),
+                "Distance": view.get("distance", 10.0),
+                "Enable": True,
+                "Focal Point": {
+                    "X": view.get("focal_point", {}).get("x", 0.0),
+                    "Y": view.get("focal_point", {}).get("y", 0.0),
+                    "Z": view.get("focal_point", {}).get("z", 0.0),
+                },
+                "Name": "View",
+                "Pitch": view.get("pitch", 0.4),
+                "Target Frame": "<Fixed Frame>",
+                "Yaw": view.get("yaw", 0.5),
+            }
+        ]
+
+        # Dump to YAML string for the returned dict
+        buf = io.StringIO()
+        yaml.safe_dump(rviz_doc, buf, default_flow_style=False, sort_keys=False)
+        return {
+            "ok": True,
+            "yaml": buf.getvalue(),
+            "mock": True,
+            "export_type": "rviz_yaml",
+            "display_count": snap.get("display_count", 0),
+            "limitations": [
+                "Colour values use default flat colour (no per-display customisation).",
+                "Advanced display properties (topic QoS, colour transform, alpha) are not preserved.",
+                "Toolbars and tree-expansion state are not included.",
+                "Round-trip fidelity is approximate — inspect the YAML and adjust manually.",
+            ],
+        }
+
+    def _display_to_rviz(self, display: dict[str, Any]) -> dict[str, object]:
+        """Convert a mock display dict to .rviz YAML display entry."""
+        cls = display.get("class", "rviz_default_plugins/Marker")
+        return {
+            "Alpha": display.get("alpha", 1.0),
+            "Autocompute Intensity Bounds": True,
+            "Autocompute Value Bounds": {"Max Value": True, "Min Value": True},
+            "Axis": "Z",
+            "Channel Name": "",
+            "Class": cls,
+            "Color": display.get("color", [255, 255, 255]),
+            "Color Transformer": "FlatColor",
+            "Enabled": display.get("enabled", True),
+            "Name": display.get("name", "Display"),
+            "Status": {"Status": None},
+            "Topic": display.get("topic", ""),
+            "Value": True,
+        }

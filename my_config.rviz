@@ -1,0 +1,131 @@
+Panels:
+- Class: rviz_common/Displays
+  Embedded: false
+  Floating: false
+  Name: Displays
+  Title: Displays
+  Visible: true
+- Class: rviz_common/Views
+  Embedded: false
+  Floating: false
+  Name: Views
+  Title: Views
+  Visible: true
+- Class: rviz_common/Time
+  Embedded: false
+  Floating: false
+  Name: Time
+  Title: Time
+  Visible: true
+Visualization Manager:
+  Class: ''
+  Displays:
+  - Alpha: 1.0
+    Autocompute Intensity Bounds: true
+    Autocompute Value Bounds:
+      Max Value: true
+      Min Value: true
+    Axis: Z
+    Channel Name: ''
+    Class: rviz_default_plugins/Grid
+    Color:
+    - 255
+    - 255
+    - 255
+    Color Transformer: FlatColor
+    Enabled: true
+    Name: Grid
+    Status:
+      Status: null
+    Topic: ''
+    Value: true
+  - Alpha: 1.0
+    Autocompute Intensity Bounds: true
+    Autocompute Value Bounds:
+      Max Value: true
+      Min Value: true
+    Axis: Z
+    Channel Name: ''
+    Class: rviz_default_plugins/TF
+    Color:
+    - 255
+    - 255
+    - 255
+    Color Transformer: FlatColor
+    Enabled: true
+    Name: TF
+    Status:
+      Status: null
+    Topic: /tf
+    Value: true
+  - Alpha: 1.0
+    Autocompute Intensity Bounds: true
+    Autocompute Value Bounds:
+      Max Value: true
+      Min Value: true
+    Axis: Z
+    Channel Name: ''
+    Class: rviz_default_plugins/RobotModel
+    Color:
+    - 255
+    - 255
+    - 255
+    Color Transformer: FlatColor
+    Enabled: true
+    Name: RobotModel
+    Status:
+      Status: null
+    Topic: /robot_description
+    Value: true
+  Enabled: true
+  Global Options:
+    Background Color:
+    - 48
+    - 48
+    - 48
+    Fixed Frame: map
+    Frame Rate: 30
+    Sync: true
+  Help: {}
+  Name: Root
+  Network Style: ''
+  Recent Topics: ''
+  Selection: ''
+  Sim Time: true
+  Tools:
+  - Class: rviz_default_plugins/Select
+    Enable: true
+    Hide Inactive Tools: true
+    Name: Select
+  - Class: rviz_default_plugins/Focus
+    Enable: true
+    Hide Inactive Tools: true
+    Name: Focus
+  - Class: rviz_default_plugins/MoveCamera
+    Enable: true
+    Hide Inactive Tools: true
+    Name: Move Camera
+  - Class: rviz_default_plugins/Measure
+    Enable: true
+    Hide Inactive Tools: true
+    Name: Measure
+  Tree:
+    Filter Expanding: ''
+    Hide Empty Properties: true
+    Hide Inactive Properties: true
+    Resize Column Contents: true
+    Show Hidden Properties: false
+  Value: true
+  View Controllers:
+  - Class: rviz_default_plugins/Orbit
+    Distance: 10.0
+    Enable: true
+    Focal Point:
+      X: 0.0
+      Y: 0.0
+      Z: 0.0
+    Name: View
+    Pitch: 0.4
+    Target Frame: <Fixed Frame>
+    Yaw: 0.5
+Toolbars: []

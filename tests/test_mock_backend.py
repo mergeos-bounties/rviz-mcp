@@ -77,6 +77,34 @@ def test_config_snapshot_shape():
     assert snap["config_path"]
 
 
+def test_export_rviz_yaml_shape():
+    """rviz_export_config(format='yaml') returns .rviz-compatible YAML."""
+    b = MockBackend()
+    b.seed_demo()
+    b.set_fixed_frame("odom")
+    result = b.export_rviz_yaml()
+    assert result["ok"] is True
+    assert "yaml" in result
+    assert "limitations" in result
+    # Verify it's valid YAML that parses
+    import yaml
+    doc = yaml.safe_load(result["yaml"])
+    # Top-level .rviz structure
+    assert "Panels" in doc
+    assert "Visualization Manager" in doc
+    vm = doc["Visualization Manager"]
+    assert "Displays" in vm
+    assert "Global Options" in vm
+    assert vm["Global Options"]["Fixed Frame"] == "odom"
+    assert "View Controllers" in vm
+    # Displays contain required .rviz fields
+    grid = next((d for d in vm["Displays"] if d["Name"] == "Grid"), None)
+    assert grid is not None
+    assert grid["Class"] == "rviz_default_plugins/Grid"
+    assert "Pitch" in vm["View Controllers"][0]
+    assert "Yaw" in vm["View Controllers"][0]
+
+
 def test_export_config_cli_dispatch():
     """rviz_export_config in the call dispatch returns config_snapshot shape."""
     from rviz_mcp.backend import get_backend

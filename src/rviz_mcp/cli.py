@@ -151,9 +151,11 @@ def call_cmd(
         "rviz_load_config": lambda: b.load_config(str(kv.get("path", "mock://default.rviz"))),
         "rviz_save_config": lambda: b.save_config(str(kv.get("path", "mock://saved.rviz"))),
         "rviz_screenshot": lambda: b.screenshot(kv.get("path")),
-        "rviz_export_config": lambda: b.config_snapshot()
-        if hasattr(b, "config_snapshot")
-        else {"ok": False, "error": "config_snapshot not available"},
+        "rviz_export_config": lambda: (
+            b.export_rviz_yaml()
+            if (kv.get("format") or "").lower() == "yaml" and hasattr(b, "export_rviz_yaml")
+            else (b.config_snapshot() if hasattr(b, "config_snapshot") else {"ok": False})
+        ),
     }
     if name not in dispatch:
         raise typer.BadParameter(f"unknown tool {name}")
@@ -162,17 +164,26 @@ def call_cmd(
 
 @app.command("export-config")
 def export_config_cmd(
-    pretty: bool = typer.Option(True, "--pretty/--compact", help="Pretty-print JSON."),
+    format: str = typer.Option("json", "--format", help="Output format: json or yaml."),
+    pretty: bool = typer.Option(True, "--pretty/--compact", help="Pretty-print."),
 ) -> None:
-    """Export current mock RViz config as a JSON snapshot."""
+    """Export current mock RViz config as JSON (default) or .rviz-compatible YAML."""
     b = get_backend()
-    snap = getattr(b, "config_snapshot", None)
-    if callable(snap):
-        data = snap()
+    fmt = (format or "json").lower().strip()
+    if fmt == "yaml":
+        method = getattr(b, "export_rviz_yaml", None)
+        if callable(method):
+            data = method()
+        else:
+            typer.secho("YAML export not available in this backend (mock mode required)", fg="red", err=True)
+            raise typer.Exit(1)
+        # Extract the YAML string from the wrapper dict
+        typer.echo(data.get("yaml", ""))
     else:
-        data = {"ok": False, "error": "config_snapshot not available in this backend"}
-    indent = 2 if pretty else None
-    typer.echo(json.dumps(data, indent=indent))
+        snap = getattr(b, "config_snapshot", None)
+        data = snap() if callable(snap) else {"ok": False, "error": "config_snapshot not available"}
+        indent = 2 if pretty else None
+        typer.echo(json.dumps(data, indent=indent))
 
 
 @app.command("serve")
