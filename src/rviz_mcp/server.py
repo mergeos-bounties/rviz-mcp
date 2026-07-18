@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import yaml
+
 from mcp.server.fastmcp import FastMCP
 
 from rviz_mcp.backend import get_backend, switch_mode
@@ -21,6 +23,11 @@ mcp = FastMCP(
 
 def _j(data: Any) -> str:
     return json.dumps(data, indent=2, default=str)
+
+
+def _yaml_dump(data: Any) -> str:
+    """Serialize config dict to simplified YAML."""
+    return yaml.dump(data, default_flow_style=False, sort_keys=False, allow_unicode=True).strip()
 
 
 @mcp.resource("rviz://config")
@@ -150,16 +157,22 @@ def rviz_screenshot(path: str | None = None) -> str:
 
 @mcp.tool()
 def rviz_export_config() -> str:
-    """Export current mock RViz config for agents as a JSON snapshot.
+    """Export current mock RViz config for agents as simplified YAML.
 
-    Returns fixed_frame, view, displays, panels, and config_path — useful for
-    agents that need to inspect or replicate the current RViz state.
+    Returns fixed_frame, view, displays, panels, and config_path in a
+    simplified .rviz-like YAML format — useful for human inspection and
+    round-trip in mock mode.
+
+    Limitations:
+      - YAML output is a simplified representation of the in-memory
+        config, not a full RViz .rviz file.
+      - Only available in mock mode; live backend returns an error.
     """
     b = get_backend()
     snap = getattr(b, "config_snapshot", None)
     if callable(snap):
-        return _j(snap())
-    return _j(
+        return _yaml_dump(snap())
+    return _yaml_dump(
         {
             "ok": False,
             "error": "config_snapshot not available in this backend",

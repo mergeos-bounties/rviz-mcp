@@ -146,6 +146,7 @@ rviz-mcp serve
 | `rviz_set_view` | View controller type + look-at |
 | `rviz_load_config` / `rviz_save_config` | Config path (mock records path) |
 | `rviz_screenshot` | Mock screenshot path |
+| `rviz_export_config` / `export-config` (CLI) | Export mock config as simplified YAML (see below) |
 
 ---
 

@@ -1,0 +1,40 @@
+ok: true
+mode: mock
+fixed_frame: map
+view:
+  class: rviz_default_plugins/Orbit
+  distance: 10.0
+  focal_point:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  yaw: 0.5
+  pitch: 0.4
+displays:
+- name: Grid
+  class: rviz_default_plugins/Grid
+  enabled: true
+  topic: ''
+- name: TF
+  class: rviz_default_plugins/TF
+  enabled: true
+  topic: /tf
+- name: RobotModel
+  class: rviz_default_plugins/RobotModel
+  enabled: true
+  topic: /robot_description
+display_count: 3
+panels:
+- class: rviz_common/Displays
+  name: Displays
+  dock: left
+  visible: true
+- class: rviz_common/Views
+  name: Views
+  dock: right
+  visible: true
+- class: rviz_common/Time
+  name: Time
+  dock: bottom
+  visible: true
+config_path: mock://default.rviz
