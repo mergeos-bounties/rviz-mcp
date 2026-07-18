@@ -149,13 +149,24 @@ def rviz_screenshot(path: str | None = None) -> str:
 
 
 @mcp.tool()
-def rviz_export_config() -> str:
-    """Export current mock RViz config for agents as a JSON snapshot.
+def rviz_export_config(format: str = "json") -> str:
+    """Export current mock RViz config for agents.
 
     Returns fixed_frame, view, displays, panels, and config_path — useful for
     agents that need to inspect or replicate the current RViz state.
+
+    Args:
+        format: ``"json"`` (default) returns the full JSON snapshot.
+                ``"yaml"`` returns a .rviz-compatible YAML document
+                (limited fidelity — see ``limitations`` field in response).
     """
     b = get_backend()
+    fmt = (format or "json").lower().strip()
+    if fmt == "yaml":
+        method = getattr(b, "export_rviz_yaml", None)
+        if callable(method):
+            return _j(method())
+        return _j({"ok": False, "error": "YAML export not available in this backend"})
     snap = getattr(b, "config_snapshot", None)
     if callable(snap):
         return _j(snap())

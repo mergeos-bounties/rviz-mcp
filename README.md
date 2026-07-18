@@ -162,9 +162,22 @@ rviz-mcp demo
 rviz-mcp status --json
 
 # 3. Export the full config snapshot for agents
-rviz-mcp export-config
+|| `rviz_export_config` | Export mock config for agents. Returns JSON snapshot (`rviz_export_config(format="json")`) or `.rviz`-compatible YAML (`rviz_export_config(format="yaml")`). CLI: `rviz-mcp export-config --format yaml`. See [YAML export limitations](#yaml-export-limitations). |
 
-# 4. Run against the MCP server (Cursor / Claude / Grok)
+# 4. Export as .rviz-compatible YAML (limited fidelity — see note below)
+rviz-mcp export-config --format yaml
+
+
+### YAML export limitations
+
+The `export-config --format yaml` command produces a `.rviz`-compatible YAML document for human inspection or round-trip into a real RViz2 instance. The conversion is **approximate**; the following are not preserved:
+
+- Per-display custom colour / colour transformer / alpha values (defaults are used).
+- Topic QoS settings and advanced display properties.
+- Toolbar layout and tree-expansion state.
+- All mock-only fields (`mode`, `mock`, `display_count`, etc.) are stripped.
+
+The YAML output uses the standard RViz2 `.rviz` YAML schema (`Panels`, `Visualization Manager`, `View Controllers`). Inspect the file before loading it into a real RViz2 instance and adjust any display properties as needed. The CLI tool reports these limitations in the response JSON wrapper when using the MCP tool form.
 rviz-mcp serve
 # Then query the rviz://config resource
 ```
