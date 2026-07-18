@@ -146,6 +146,7 @@ rviz-mcp serve
 | `rviz_set_view` | View controller type + look-at |
 | `rviz_load_config` / `rviz_save_config` | Config path (mock records path) |
 | `rviz_screenshot` | Mock screenshot path |
+| `rviz_export_config` / `export-config` (CLI) | Export mock config as simplified YAML (see below) |
 
 ---
 
@@ -224,6 +225,7 @@ Example payload:
 
 ## Examples
 
+- [docs/HOST_SETUP.md](docs/HOST_SETUP.md) — step-by-step installation guide with screenshots for Cursor, Claude Desktop, and Grok
 - [examples/cursor_mcp.json](examples/cursor_mcp.json)
 - [examples/claude_desktop_config.json](examples/claude_desktop_config.json)
 - [docs/LIVE_BRIDGE.md](docs/LIVE_BRIDGE.md) for live bridge load_config and screenshot endpoints

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>rviz-mcp MCP Configs</title>
+<style>
+body { background: #1e1e1e; margin: 20px; font-family: 'SF Mono', Menlo, monospace; font-size: 14px; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 8px; border: 1px solid #333; line-height: 1.5; overflow: auto; }
+.comment { color: #6a9955; }
+.key { color: #569cd6; }
+.str { color: #ce9178; }
+.num { color: #b5cea8; }
+.bool { color: #569cd6; }
+.title { color: #4fc1ff; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<pre>
+<div class="title">Cursor MCP Config (examples/cursor_mcp.json)</div>
+
+<span class="comment">// Merge into ~/.cursor/mcp.json</span>
+{<span class="key">
+  "mcpServers"</span>: {<span class="key">
+    "rviz-mcp"</span>: {<span class="key">
+      "command"</span>: <span class="str">"rviz-mcp"</span>,<span class="key">
+      "args"</span>: [<span class="str">"serve"</span>],<span class="key">
+      "env"</span>: {<span class="key">"RVIZ_MCP_MODE"</span>: <span class="str">"mock"</span>}<span class="key">
+    }</span>
+  }<span class="key">
+}</span>
+
+<div class="title">Claude Desktop Config (examples/claude_desktop_config.json)</div>
+
+<span class="comment">// Merge into claude_desktop_config.json</span>
+{<span class="key">
+  "mcpServers"</span>: {<span class="key">
+    "rviz-mcp"</span>: {<span class="key">
+      "command"</span>: <span class="str">"rviz-mcp"</span>,<span class="key">
+      "args"</span>: [<span class="str">"serve"</span>],<span class="key">
+      "env"</span>: {<span class="key">"RVIZ_MCP_MODE"</span>: <span class="str">"mock"</span>}<span class="key">
+    }</span>
+  }<span class="key">
+}</span>
+
+<div class="title">Grok config.toml (manual, without plugin)</div>
+
+[mcp_servers.rviz_mcp]
+command = <span class="str">"rviz-mcp"</span>
+args = [<span class="str">"serve"</span>]
+env = { RVIZ_MCP_MODE = <span class="str">"mock"</span> }
+enabled = <span class="bool">true</span>
+</pre>
+</body>
+</html>
