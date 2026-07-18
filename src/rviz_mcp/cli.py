@@ -175,6 +175,18 @@ def export_config_cmd(
     typer.echo(json.dumps(data, indent=indent))
 
 
+@app.command("bridge-stub")
+def bridge_stub_cmd(
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind host for the stub bridge."),
+    port: int = typer.Option(8765, "--port", help="Bind port for the stub bridge."),
+) -> None:
+    """Run the standalone live-bridge HTTP stub (load_config / screenshot)."""
+    from rviz_mcp.bridge_stub import serve
+
+    rprint(f"rviz-mcp bridge-stub listening on http://{host}:{port}")
+    serve(host, port)
+
+
 @app.command("serve")
 def serve_cmd() -> None:
     from rviz_mcp.server import run_stdio
