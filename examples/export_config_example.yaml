@@ -1,0 +1,23 @@
+displays:
+- name: robot_model
+  type: rviz_default_plugins/robot_model/Display
+  enabled: true
+- name: grid
+  type: rviz_default_plugins/grid/Display
+  enabled: true
+fixed_frames:
+- name: base_link
+  parent: world
+- name: odom
+  parent: base_link
+views:
+- name: default_view
+  type: rviz_default_plugins/view_controllers/orbit/Orbit
+  properties:
+    distance: 5.0
+    focal_point:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    yaw: 0.0
+    pitch: 0.785
