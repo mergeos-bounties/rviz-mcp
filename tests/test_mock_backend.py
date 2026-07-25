@@ -89,3 +89,20 @@ def test_export_config_cli_dispatch():
     assert "displays" in result
     assert "panels" in result
     assert "view" in result
+
+
+def test_set_fixed_frame_reflected_in_doctor():
+    """Doctor output must reflect the current fixed frame after set_fixed_frame."""
+    b = MockBackend()
+    assert b.doctor()["fixed_frame"] == "map"
+    resp = b.set_fixed_frame("odom")
+    assert resp["ok"] is True
+    assert resp["fixed_frame"] == "odom"
+    assert b.doctor()["fixed_frame"] == "odom"
+    resp2 = b.set_fixed_frame("base_link")
+    assert resp2["ok"] is True
+    assert b.doctor()["fixed_frame"] == "base_link"
+    # None falls back to "map"
+    fallback = b.set_fixed_frame(None)
+    assert fallback["ok"] is True
+    assert fallback["fixed_frame"] == "map"
