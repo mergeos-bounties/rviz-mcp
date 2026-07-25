@@ -89,3 +89,46 @@ def test_export_config_cli_dispatch():
     assert "displays" in result
     assert "panels" in result
     assert "view" in result
+
+
+def test_display_crud():
+    """Full CRUD (list, add, remove) for the mock display graph."""
+    b = MockBackend()
+
+    # LIST – seed has Grid, TF, RobotModel
+    displays = b.list_displays()
+    names = {d["name"] for d in displays}
+    assert names == {"Grid", "TF", "RobotModel"}
+
+    # ADD – create a new display
+    add1 = b.add_display("Markers", "rviz_default_plugins/Marker", "/markers")
+    assert add1["ok"] is True
+    assert add1["display"]["topic"] == "/markers"
+    add2 = b.add_display("Map", "rviz_default_plugins/Map", "/map")
+    assert add2["ok"] is True
+
+    displays = b.list_displays()
+    names = {d["name"] for d in displays}
+    assert names == {"Grid", "TF", "RobotModel", "Markers", "Map"}
+
+    # ADD duplicate rejected
+    dup = b.add_display("Markers")
+    assert dup["ok"] is False
+    assert "already exists" in dup["error"]
+
+    # REMOVE
+    rm = b.remove_display("Markers")
+    assert rm["ok"] is True
+    assert rm["removed"] == "Markers"
+    names = {d["name"] for d in b.list_displays()}
+    assert "Markers" not in names
+
+    # REMOVE unknown
+    bad = b.remove_display("Nope")
+    assert bad["ok"] is False
+    assert "unknown display" in bad["error"]
+
+    # REMOVE Grid (protected)
+    grid_rm = b.remove_display("Grid")
+    assert grid_rm["ok"] is False
+    assert "cannot remove Grid" in grid_rm["error"]
