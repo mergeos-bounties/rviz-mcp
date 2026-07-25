@@ -89,3 +89,12 @@ def test_export_config_cli_dispatch():
     assert "displays" in result
     assert "panels" in result
     assert "view" in result
+
+def test_set_fixed_frame_doctor_reflection():
+    b = MockBackend()
+    b.seed_demo()
+    assert b.doctor()["fixed_frame"] == "map"
+    res = b.set_fixed_frame("odom")
+    assert res["ok"] is True
+    assert res["fixed_frame"] == "odom"
+    assert b.doctor()["fixed_frame"] == "odom"
