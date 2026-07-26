@@ -89,3 +89,22 @@ def test_export_config_cli_dispatch():
     assert "displays" in result
     assert "panels" in result
     assert "view" in result
+
+def test_crud_display_graph_mock_tools():
+    b = MockBackend()
+    b.seed_demo()
+    # List displays
+    displays = b.list_displays()
+    assert len(displays) >= 1
+    
+    # Add display
+    add = b.add_display("PathTracker", "rviz_default_plugins/Path", "/robot/path")
+    assert add["ok"] is True
+    assert add["display"]["name"] == "PathTracker"
+    assert any(d["name"] == "PathTracker" for d in b.list_displays())
+    
+    # Remove display
+    rem = b.remove_display("PathTracker")
+    assert rem["ok"] is True
+    assert rem["removed"] == "PathTracker"
+    assert not any(d["name"] == "PathTracker" for d in b.list_displays())
