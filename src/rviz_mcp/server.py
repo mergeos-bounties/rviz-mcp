@@ -149,13 +149,39 @@ def rviz_screenshot(path: str | None = None) -> str:
 
 
 @mcp.tool()
-def rviz_export_config() -> str:
-    """Export current mock RViz config for agents as a JSON snapshot.
+def rviz_export_config(format: str = "json", path: str | None = None) -> str:
+    """Export current mock RViz config for agents.
 
-    Returns fixed_frame, view, displays, panels, and config_path — useful for
-    agents that need to inspect or replicate the current RViz state.
+    ``format``: ``"json"`` (default, full snapshot) or ``"yaml"``
+    (simplified .rviz-like YAML).  ``path``: optional output file
+    (``.rviz`` suffix required for YAML writes).
     """
     b = get_backend()
+
+    if format == "yaml":
+        from rviz_mcp.export_config import (
+            export_config_to_yaml,
+            export_config_to_file,
+        )
+
+        if path:
+            result = export_config_to_file(b, path)
+            return _j(result)
+        try:
+            yaml_text = export_config_to_yaml(b)
+            snap = b.config_snapshot() if hasattr(b, "config_snapshot") else {}
+            return _j({
+                "ok": True,
+                "format": "rviz-yaml",
+                "yaml": yaml_text,
+                "bytes": len(yaml_text.encode("utf-8")),
+                "fixed_frame": snap.get("fixed_frame"),
+                "display_count": snap.get("display_count", 0),
+            })
+        except (TypeError, ValueError) as exc:
+            return _j({"ok": False, "error": str(exc)})
+
+    # Default JSON
     snap = getattr(b, "config_snapshot", None)
     if callable(snap):
         return _j(snap())

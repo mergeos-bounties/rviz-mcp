@@ -1,23 +1,65 @@
-﻿name: ci
+﻿name: CI
 
 on:
   push:
     branches: [master, main]
   pull_request:
+    branches: [master, main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+      fail-fast: false
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,yaml]"
+
+      - name: Run tests
+        run: python -m pytest tests/ -v
+
+      - name: Lint with ruff
+        run: ruff check src/ tests/
+
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install
-        run: pip install -e ".[dev]"
-      - name: Ruff
-        run: ruff check src tests
-      - name: Pytest
-        run: pytest -q
-      - name: Demo
-        run: rviz-mcp demo
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev,yaml]"
+
+      - name: Verify golden fixture is in sync
+        run: |
+          python -c "
+          from rviz_mcp.backend.mock import MockBackend
+          from rviz_mcp.export_config import serialize_rviz_config
+          b = MockBackend()
+          b.seed_demo()
+          generated = serialize_rviz_config(b.config_snapshot())
+          golden = open('tests/fixtures/default_export.rviz', encoding='utf-8').read()
+          assert generated == golden, 'Golden fixture is out of sync — regenerate it!'
+          print('Golden fixture is in sync.')
+          "

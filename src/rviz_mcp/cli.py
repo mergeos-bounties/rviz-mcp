@@ -157,20 +157,83 @@ def call_cmd(
     }
     if name not in dispatch:
         raise typer.BadParameter(f"unknown tool {name}")
-    rprint(dispatch[name]())
+    # Wrap export_config path/file dispatch
+    result = dispatch[name]()
+    if name == "rviz_export_config" and kv.get("path"):
+        from rviz_mcp.export_config import export_config_to_file
+
+        file_result = export_config_to_file(b, str(kv["path"]))
+        if file_result["ok"]:
+            result = file_result
+    rprint(result)
 
 
 @app.command("export-config")
 def export_config_cmd(
-    pretty: bool = typer.Option(True, "--pretty/--compact", help="Pretty-print JSON."),
+    fmt: str = typer.Option(
+        "json", "--format", "-f", help="Output format: json or yaml."
+    ),
+    out: Optional[str] = typer.Option(
+        None, "--out", "-o", help="Write to this path instead of stdout."
+    ),
+    pretty: bool = typer.Option(
+        True, "--pretty/--compact", help="Pretty-print JSON (--format json only)."
+    ),
 ) -> None:
-    """Export current mock RViz config as a JSON snapshot."""
+    """Export current mock RViz config as JSON or simplified .rviz-like YAML.
+
+    ``--format yaml`` emits a deterministic, human-inspectable YAML document
+    that mirrors the shape of a native RViz2 ``.rviz`` file.  It covers
+    panels, displays, the fixed frame and view controller.
+
+    ``--out`` writes the export to a local file (``.rviz`` suffix required for
+    YAML; JSON is written as-is).  The file write is atomic and refuses to
+    overwrite an existing file.
+
+    Limitations: no Widgets tree, TF prefix overrides, Status blocks,
+    Materials/Textures panels.  Export is intended for the offline mock
+    backend, human inspection and round-tripping — it is not a guarantee
+    of byte-for-byte output or complete behavioural fidelity with native
+    RViz2.
+    """
+    from rviz_mcp.export_config import (
+        export_config_to_yaml,
+        export_config_to_file,
+    )
+
     b = get_backend()
+
+    if fmt == "yaml":
+        if out:
+            result = export_config_to_file(b, out)
+            if not result["ok"]:
+                typer.echo(json.dumps(result), err=True)
+                raise typer.Exit(code=1)
+            typer.echo(f"Wrote {result['bytes']} bytes to {result['path']}")
+            return
+        try:
+            yaml_text = export_config_to_yaml(b)
+        except (TypeError, ValueError) as exc:
+            typer.echo(f"Error: {exc}", err=True)
+            raise typer.Exit(code=1)
+        typer.echo(yaml_text)
+        return
+
+    # Default: JSON
     snap = getattr(b, "config_snapshot", None)
     if callable(snap):
         data = snap()
     else:
         data = {"ok": False, "error": "config_snapshot not available in this backend"}
+
+    if out:
+        from pathlib import Path
+
+        p = Path(out)
+        p.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        typer.echo(f"Wrote {p.stat().st_size} bytes to {p}")
+        return
+
     indent = 2 if pretty else None
     typer.echo(json.dumps(data, indent=indent))
 

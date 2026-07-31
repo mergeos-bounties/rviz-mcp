@@ -231,6 +231,32 @@ class MockBackend:
         self._last_shot = out
         return {"ok": True, "path": out, "mock": True, "bytes": 0}
 
+    def export_config(self, path: str | None = None) -> dict[str, Any]:
+        """Export the current mock state as simplified .rviz-like YAML.
+
+        When ``path`` is None, returns the YAML text inline.
+        When ``path`` is a local ``.rviz`` file path, writes atomically
+        and returns metadata.  The YAML is deterministic: repeated calls
+        on the same in-memory state produce byte-for-byte identical output.
+        """
+        from rviz_mcp.export_config import (
+            export_config_to_yaml,
+            export_config_to_file,
+        )
+
+        if path is None:
+            yaml_text = export_config_to_yaml(self)
+            snap = self.config_snapshot()
+            return {
+                "ok": True,
+                "format": "rviz-yaml",
+                "yaml": yaml_text,
+                "bytes": len(yaml_text.encode("utf-8")),
+                "fixed_frame": self._fixed_frame,
+                "display_count": len(self._displays),
+            }
+        return export_config_to_file(self, path)
+
     def toggle_topic_visibility(self, display_name: str, topic: str) -> dict[str, Any]:
         """Toggle topic visibility for a display."""
         disp = self._displays.get(display_name)

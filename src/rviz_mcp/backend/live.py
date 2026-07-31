@@ -146,6 +146,14 @@ class LiveBackend:
                 return data
             return {"ok": True, **data}
         return self._unsupported("screenshot")
+
+    def export_config(self, path: str | None = None) -> dict[str, Any]:
+        """Reject the mock-only export explicitly in live mode."""
+        return {
+            "ok": False,
+            "mode": "live",
+            "error": "export_config is mock-only; switch to mock mode before exporting",
+        }
     def toggle_topic_visibility(self, display_name: str, topic: str) -> dict[str, Any]: return self._unavailable("toggle_topic_visibility")
     def get_topic_visibility(self, display_name: str) -> dict[str, Any]: return self._unavailable("get_topic_visibility")
     def view_presets(self) -> dict[str, Any]: return self._unavailable("view_presets")

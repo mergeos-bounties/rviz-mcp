@@ -1,0 +1,40 @@
+Panels:
+  - Class: "rviz_common/Displays"
+    Name: "Displays"
+    Dock: "left"
+    Visible: true
+  - Class: "rviz_common/Views"
+    Name: "Views"
+    Dock: "right"
+    Visible: true
+  - Class: "rviz_common/Time"
+    Name: "Time"
+    Dock: "bottom"
+    Visible: true
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: "rviz_default_plugins/Grid"
+      Enabled: true
+      Name: "Grid"
+      Topic: ""
+    - Class: "rviz_default_plugins/TF"
+      Enabled: true
+      Name: "TF"
+      Topic: "/tf"
+    - Class: "rviz_default_plugins/RobotModel"
+      Enabled: true
+      Name: "RobotModel"
+      Topic: "/robot_description"
+  Global Options:
+    Fixed Frame: "map"
+  Views:
+    Current:
+      Class: "rviz_default_plugins/Orbit"
+      Distance: 10.0
+      Focal Point:
+        X: 0.0
+        Y: 0.0
+        Z: 0.0
+      Yaw: 0.5
+      Pitch: 0.4

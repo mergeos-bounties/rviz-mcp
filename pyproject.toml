@@ -19,6 +19,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.4"]
+yaml = ["pyyaml>=6.0"]
 
 [project.scripts]
 rviz-mcp = "rviz_mcp.cli:app"
