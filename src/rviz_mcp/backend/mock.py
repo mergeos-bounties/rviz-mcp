@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from rviz_mcp import ops
+
 
 class MockBackend:
     name = "mock"
@@ -114,7 +116,7 @@ class MockBackend:
         }
 
     def list_displays(self) -> list[dict[str, Any]]:
-        return list(self._displays.values())
+        return ops.list_displays(self._displays)
 
     def list_panels(self) -> list[dict[str, Any]]:
         return list(self._panels.values())
@@ -145,23 +147,10 @@ class MockBackend:
         topic: str = "",
         enabled: bool = True,
     ) -> dict[str, Any]:
-        if name in self._displays:
-            return {"ok": False, "error": f"display {name} already exists"}
-        self._displays[name] = {
-            "name": name,
-            "class": class_name,
-            "enabled": bool(enabled),
-            "topic": topic,
-        }
-        return {"ok": True, "display": self._displays[name]}
+        return ops.add_display(self._displays, name, class_name, topic, enabled)
 
     def remove_display(self, name: str) -> dict[str, Any]:
-        if name not in self._displays:
-            return {"ok": False, "error": f"unknown display {name}"}
-        if name == "Grid":
-            return {"ok": False, "error": "cannot remove Grid in mock seed"}
-        del self._displays[name]
-        return {"ok": True, "removed": name}
+        return ops.remove_display(self._displays, name)
 
     def add_panel(
         self,
@@ -191,11 +180,11 @@ class MockBackend:
         return {"ok": True, "removed": name}
 
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:
-        frame = (frame or "map").strip()
-        if not frame:
-            return {"ok": False, "error": "frame required"}
-        self._fixed_frame = frame
-        return {"ok": True, "fixed_frame": self._fixed_frame}
+        state: dict[str, Any] = {"fixed_frame": self._fixed_frame}
+        result = ops.set_fixed_frame(state, frame)
+        if result.get("ok"):
+            self._fixed_frame = state["fixed_frame"]
+        return result
 
     def set_view(
         self,
