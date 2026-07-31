@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from rviz_mcp import ops
+
 
 class MockBackend:
     name = "mock"
@@ -191,11 +193,11 @@ class MockBackend:
         return {"ok": True, "removed": name}
 
     def set_fixed_frame(self, frame: str) -> dict[str, Any]:
-        frame = (frame or "map").strip()
-        if not frame:
-            return {"ok": False, "error": "frame required"}
-        self._fixed_frame = frame
-        return {"ok": True, "fixed_frame": self._fixed_frame}
+        state: dict[str, Any] = {"fixed_frame": self._fixed_frame}
+        result = ops.set_fixed_frame(state, frame)
+        if result.get("ok"):
+            self._fixed_frame = state["fixed_frame"]
+        return result
 
     def set_view(
         self,
