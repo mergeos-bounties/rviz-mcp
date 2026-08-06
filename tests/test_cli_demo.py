@@ -39,3 +39,14 @@ def test_status_json():
     assert data["fixed_frame"] == "map"
     assert isinstance(data["display_count"], int)
     assert data["display_count"] == 3
+
+
+def test_set_fixed_frame_json_doctor_reflects_frame():
+    set_mode("mock")
+    get_backend().seed_demo()
+    result = runner.invoke(app, ["set-fixed-frame", "odom", "--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.stdout)
+    assert data["ok"] is True
+    assert data["fixed_frame"] == "odom"
+    assert data["doctor"]["fixed_frame"] == "odom"
