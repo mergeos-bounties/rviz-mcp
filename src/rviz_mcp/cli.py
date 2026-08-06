@@ -69,6 +69,26 @@ def status_cmd(
         rprint(status)
 
 
+@app.command("set-fixed-frame")
+def set_fixed_frame_cmd(
+    frame: str = typer.Argument(..., help="Fixed frame name, e.g. map, odom, base_link."),
+    json_out: bool = typer.Option(False, "--json", help="Emit machine-readable JSON."),
+) -> None:
+    """Set the mock RViz fixed frame and include doctor state in the result."""
+    b = get_backend()
+    result = b.set_fixed_frame(frame)
+    doctor = b.doctor()
+    payload = {
+        "ok": result.get("ok", False),
+        "fixed_frame": result.get("fixed_frame"),
+        "doctor": doctor,
+    }
+    if json_out:
+        typer.echo(json.dumps(payload))
+    else:
+        rprint(payload)
+
+
 @app.command("demo")
 def demo_cmd(
     profile: str = typer.Option("default", "--profile", help="Mock seed profile: default or nav."),
