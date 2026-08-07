@@ -10,6 +10,9 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+# Re-export RemoteBridge at runtime for direct imports
+from rviz_mcp.bridge.remote import RemoteBridge  # noqa: F401
+
 if TYPE_CHECKING:
     from rviz_mcp.bridge.remote import RemoteBridge as RemoteBridge
 
