@@ -11,7 +11,7 @@ import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from rviz_mcp.bridge.remote import RemoteBridge
+    from rviz_mcp.bridge.remote import RemoteBridge as RemoteBridge
 
 
 def get_bridge():
