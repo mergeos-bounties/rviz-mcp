@@ -8,18 +8,13 @@ Exports:
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING
 
 # Re-export RemoteBridge at runtime for direct imports
-from rviz_mcp.bridge.remote import RemoteBridge  # noqa: F401
-
-if TYPE_CHECKING:
-    from rviz_mcp.bridge.remote import RemoteBridge as RemoteBridge
+from rviz_mcp.bridge.remote import RemoteBridge  # used for re-export
 
 
 def get_bridge():
     """Return a RemoteBridge instance configured from environment variables."""
-    from rviz_mcp.bridge.remote import RemoteBridge
 
     base_url = (os.environ.get("RVIZ_MCP_BRIDGE_URL") or "http://127.0.0.1:8765").strip()
     token = (os.environ.get("RVIZ_MCP_BRIDGE_TOKEN") or "").strip() or None

@@ -28,7 +28,9 @@ class LiveBackend:
         headers = {"Content-Type": "application/json"} if payload is not None else {}
         try:
             target = url.rstrip("/") + endpoint
-            with urlopen(Request(target, data=data, headers=headers, method=method), timeout=2) as resp:
+            with urlopen(
+                Request(target, data=data, headers=headers, method=method), timeout=2
+            ) as resp:
                 raw = resp.read().decode("utf-8", errors="replace")
         except (HTTPError, URLError, TimeoutError, OSError) as exc:
             return {"ok": False, "connected": False, "mode": "live", "error": str(exc)}
@@ -146,9 +148,27 @@ class LiveBackend:
                 return data
             return {"ok": True, **data}
         return self._unsupported("screenshot")
-    def toggle_topic_visibility(self, display_name: str, topic: str) -> dict[str, Any]: return self._unavailable("toggle_topic_visibility")
-    def get_topic_visibility(self, display_name: str) -> dict[str, Any]: return self._unavailable("get_topic_visibility")
-    def view_presets(self) -> dict[str, Any]: return self._unavailable("view_presets")
-    def set_view_preset(self, name: str) -> dict[str, Any]: return self._unavailable("set_view_preset")
-    def display_properties(self, display_name: str) -> dict[str, Any]: return self._unavailable("display_properties")
-    def update_display_properties(self, display_name: str, color: list[float] | None = None, size: float | None = None, alpha: float | None = None) -> dict[str, Any]: return self._unavailable("update_display_properties")
+
+    def toggle_topic_visibility(self, display_name: str, topic: str) -> dict[str, Any]:
+        return self._unavailable("toggle_topic_visibility")
+
+    def get_topic_visibility(self, display_name: str) -> dict[str, Any]:
+        return self._unavailable("get_topic_visibility")
+
+    def view_presets(self) -> dict[str, Any]:
+        return self._unavailable("view_presets")
+
+    def set_view_preset(self, name: str) -> dict[str, Any]:
+        return self._unavailable("set_view_preset")
+
+    def display_properties(self, display_name: str) -> dict[str, Any]:
+        return self._unavailable("display_properties")
+
+    def update_display_properties(
+        self,
+        display_name: str,
+        color: list[float] | None = None,
+        size: float | None = None,
+        alpha: float | None = None,
+    ) -> dict[str, Any]:
+        return self._unavailable("update_display_properties")
