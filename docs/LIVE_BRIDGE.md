@@ -1,215 +1,199 @@
 # Live bridge HTTP contract
 
-`rviz-mcp` can run in `live` mode by forwarding selected operations to a local
-RViz bridge. The initial live HTTP contract covers bridge health, config loading,
-and screenshots:
-
-- `GET /health`
-- `POST /load_config`
-- `POST /screenshot`
+rviz-mcp can run in live mode by forwarding selected operations to a local
+RViz bridge. The full HTTP contract covers all backend operations: health,
+display/panel management, frame/view control, config, screenshots, topic
+visibility, view presets, and display properties.
 
 Mock mode remains the default and does not use the network. Use live mode only
 when a trusted local RViz bridge is available:
 
-```powershell
-$env:RVIZ_MCP_MODE = "live"
-$env:RVIZ_MCP_BRIDGE_URL = "http://127.0.0.1:8765"
-rviz-mcp doctor
-rviz-mcp call load_config path=C:\work\demo.rviz
-rviz-mcp call screenshot path=rviz-live.png
-```
+    :RVIZ_MCP_MODE = "live"
+    :RVIZ_MCP_BRIDGE_URL = "http://127.0.0.1:8765"
+    rviz-mcp doctor
+    rviz-mcp call load_config path=C:\work\demo.rviz
+    rviz-mcp call screenshot path=rviz-live.png
 
 Do not put tokens, private URLs, or credentials in the bridge configuration.
 Prefer loopback URLs for local desktop automation.
 
+## Endpoint table
+
+Each backend operation maps to exactly one bridge endpoint:
+
+| Operation                   | Method | Endpoint                    |
+|-----------------------------|--------|-----------------------------|
+| doctor / health             | GET    | /health                     |
+| list_displays               | GET    | /displays                   |
+| list_panels                 | GET    | /panels                     |
+| add_display                 | POST   | /displays/add               |
+| remove_display              | POST   | /displays/remove            |
+| add_panel                   | POST   | /panels/add                 |
+| remove_panel                | POST   | /panels/remove              |
+| set_fixed_frame             | POST   | /fixed_frame                |
+| set_view                    | POST   | /view                       |
+| load_config                 | POST   | /load_config                |
+| save_config                 | POST   | /save_config                |
+| screenshot                  | POST   | /screenshot                 |
+| config_snapshot             | GET    | /config                     |
+| toggle_topic_visibility     | POST   | /topic/visibility/toggle    |
+| get_topic_visibility        | GET    | /topic/visibility           |
+| view_presets                | GET    | /view/presets               |
+| set_view_preset             | POST   | /view/preset                |
+| display_properties          | GET    | /display/properties         |
+| update_display_properties   | POST   | /display/properties         |
+
+All POST endpoints accept a JSON body. GET endpoints may use query parameters
+at the bridge implementor's discretion.
+
+---
+
 ## GET /health
 
-Returns bridge connectivity and runtime metadata used by `LiveBackend.doctor()`.
+Returns bridge connectivity and runtime metadata.
 
-OpenAPI-style notes:
+Example response:
 
-```yaml
-get:
-  summary: Read live RViz bridge health
-  responses:
-    "200":
-      description: Bridge is reachable.
-      content:
-        application/json:
-          schema:
-            type: object
-            required: [ok]
-            properties:
-              ok:
-                type: boolean
-              service:
-                type: string
-              mode:
-                type: string
-              version:
-                type: string
-              rviz:
-                type: object
-```
 
-Example:
+---
 
-```json
-{
-  "ok": true,
-  "service": "rviz-bridge",
-  "mode": "live",
-  "version": "0.1.0",
-  "rviz": {
-    "fixed_frame": "map",
-    "display_count": 3
-  }
-}
-```
+## GET /displays
 
-`rviz-mcp doctor` wraps this response:
+List all displays in the current RViz config.
 
-```json
-{
-  "ok": true,
-  "connected": true,
-  "mode": "live",
-  "bridge": "http",
-  "health": {
-    "ok": true,
-    "service": "rviz-bridge",
-    "mode": "live"
-  }
-}
-```
+Response: 
+
+---
+
+## POST /displays/add
+
+Add a new display. Body: 
+
+Response: 
+
+---
+
+## POST /displays/remove
+
+Remove a display by name. Body: 
+
+Response: 
+
+---
+
+## GET /panels
+
+List all UI panels. Response: 
+
+---
+
+## POST /panels/add
+
+Add a UI panel. Body: 
+
+---
+
+## POST /panels/remove
+
+Remove a panel by name. Body: 
+
+---
+
+## POST /fixed_frame
+
+Set the fixed frame. Body: 
+
+Response: 
+
+---
+
+## POST /view
+
+Configure the view controller.
+
+Body: 
+
+---
 
 ## POST /load_config
 
-Loads an RViz config path through the live bridge.
+Load an RViz config path. Body: 
 
-OpenAPI-style notes:
+Response: 
 
-```yaml
-post:
-  summary: Load an RViz config file
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          type: object
-          required: [path]
-          properties:
-            path:
-              type: string
-  responses:
-    "200":
-      description: Config load result.
-      content:
-        application/json:
-          schema:
-            type: object
-            required: [ok]
-            properties:
-              ok:
-                type: boolean
-              loaded:
-                type: string
-              display_count:
-                type: integer
-```
+---
 
-Request:
+## POST /save_config
 
-```json
-{
-  "path": "C:\\work\\demo.rviz"
-}
-```
+Save the current config. Body: 
 
-Response:
+Response: 
 
-```json
-{
-  "ok": true,
-  "loaded": "C:\\work\\demo.rviz",
-  "display_count": 3
-}
-```
+---
 
 ## POST /screenshot
 
-Captures an RViz screenshot through the live bridge. `path` is optional; if it is
-omitted, the bridge may choose the output path.
+Capture a screenshot. Body (optional): 
 
-OpenAPI-style notes:
+Response: 
 
-```yaml
-post:
-  summary: Capture an RViz screenshot
-  requestBody:
-    required: false
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            path:
-              type: string
-  responses:
-    "200":
-      description: Screenshot capture result.
-      content:
-        application/json:
-          schema:
-            type: object
-            required: [ok, path]
-            properties:
-              ok:
-                type: boolean
-              path:
-                type: string
-              mime_type:
-                type: string
-              bytes:
-                type: integer
-```
+---
 
-Request:
+## GET /config
 
-```json
-{
-  "path": "rviz-live.png"
-}
-```
+Full config snapshot. Response includes fixed_frame, view, displays, panels, config_path.
+
+---
+
+## POST /topic/visibility/toggle
+
+Toggle topic visibility. Body: 
+
+---
+
+## GET /topic/visibility
+
+Get visible topics for a display. Query: .
+
+---
+
+## GET /view/presets
+
+List available view controller presets.
 
 Response:
 
-```json
-{
-  "ok": true,
-  "path": "rviz-live.png",
-  "mime_type": "image/png",
-  "bytes": 128
-}
-```
+
+---
+
+## POST /view/preset
+
+Set view to a named preset. Body: 
+
+---
+
+## GET /display/properties
+
+Get display property bag. Query: .
+
+---
+
+## POST /display/properties
+
+Update display properties.
+
+Body: 
+
+---
 
 ## Failure behavior
 
 Live mode fails closed. If the bridge is missing, down, returns invalid JSON, or
-returns non-object JSON, `rviz-mcp` reports `ok: false` and does not fall back to
+returns non-object JSON, rviz-mcp reports  and does not fall back to
 mock data.
 
 Example:
 
-```json
-{
-  "ok": false,
-  "connected": false,
-  "mode": "live",
-  "error": "<connection error>"
-}
-```
 
 This preserves offline mock tests while keeping live integrations honest: a live
 host sees an explicit failure instead of simulated RViz state when the bridge is
