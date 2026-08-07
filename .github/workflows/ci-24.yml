@@ -1,0 +1,59 @@
+name: ci-24-live-bridge
+
+on:
+  push:
+    branches: [feat/impl-24-*]
+  pull_request:
+    paths:
+      - 'src/rviz_mcp/bridge/**'
+      - 'src/rviz_mcp/backend/live.py'
+      - 'docs/impl-24.md'
+      - '.github/workflows/ci-24.yml'
+
+jobs:
+  live-bridge-stub:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+
+      - name: Ruff lint
+        run: ruff check src/rviz_mcp/bridge/ src/rviz_mcp/backend/live.py
+
+      - name: Unit tests — live bridge stub
+        run: pytest tests/test_live_backend.py -q -v
+
+      - name: Bridge stub import smoke
+        run: python -c "from rviz_mcp.bridge import RemoteBridge; b=RemoteBridge(); print(b.health())"
+
+      - name: Live mode doctor
+        run: |
+          export RVIZ_MCP_MODE=live
+          rviz-mcp doctor || true
+
+      - name: Verify impl-24 design doc exists
+        run: test -f docs/impl-24.md && echo "Design doc OK"
+
+  mock-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Full test suite (mock regression)
+        run: pytest -q
+      - name: Demo smoke
+        run: rviz-mcp demo
