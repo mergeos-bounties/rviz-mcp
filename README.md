@@ -250,3 +250,5 @@ See [mergeos](https://github.com/mergeos-bounties/mergeos).
 ## License
 
 MIT · MergeOS / ThanhTrucSolutions
+
+- [Host Setup](docs/HOST_SETUP.md) — connect rviz-mcp to Grok, Claude Desktop, and Cursor.
