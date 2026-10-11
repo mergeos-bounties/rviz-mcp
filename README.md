@@ -226,6 +226,7 @@ Example payload:
 
 - [examples/cursor_mcp.json](examples/cursor_mcp.json)
 - [examples/claude_desktop_config.json](examples/claude_desktop_config.json)
+- [docs/HOST_SETUP.md](docs/HOST_SETUP.md) for Cursor / Claude Desktop / Grok / Claude Code host config
 - [docs/LIVE_BRIDGE.md](docs/LIVE_BRIDGE.md) for live bridge load_config and screenshot endpoints
 
 ---
