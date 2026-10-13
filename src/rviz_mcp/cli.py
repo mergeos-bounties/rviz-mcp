@@ -4,6 +4,7 @@ import json
 from typing import Any, Optional
 
 import typer
+from typer.main import get_command
 from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
@@ -160,19 +161,60 @@ def call_cmd(
     rprint(dispatch[name]())
 
 
+def _yaml_scalar(v: Any) -> str:
+    if v is True:
+        return "true"
+    if v is False:
+        return "false"
+    if v is None:
+        return "null"
+    if isinstance(v, (int, float)):
+        return str(v)
+    s = str(v)
+    if s == "" or any(c in s for c in ":#{}[],&*!|>'\"%@`") or s != s.strip():
+        return json.dumps(s)
+    return s
+
+
+def _to_yaml(data: Any, indent: int = 0) -> str:
+    pad = "  " * indent
+    lines: list[str] = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if isinstance(v, (dict, list)):
+                lines.append(f"{pad}{k}:")
+                lines.append(_to_yaml(v, indent + 1))
+            else:
+                lines.append(f"{pad}{k}: {_yaml_scalar(v)}")
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, (dict, list)):
+                lines.append(f"{pad}-")
+                lines.append(_to_yaml(item, indent + 1))
+            else:
+                lines.append(f"{pad}- {_yaml_scalar(item)}")
+    else:
+        lines.append(f"{pad}{_yaml_scalar(data)}")
+    return "\n".join(lines)
+
+
 @app.command("export-config")
 def export_config_cmd(
     pretty: bool = typer.Option(True, "--pretty/--compact", help="Pretty-print JSON."),
+    yaml_out: bool = typer.Option(False, "--yaml", help="Output as YAML instead of JSON."),
 ) -> None:
-    """Export current mock RViz config as a JSON snapshot."""
+    """Export current mock RViz config as a JSON (or YAML) snapshot."""
     b = get_backend()
     snap = getattr(b, "config_snapshot", None)
     if callable(snap):
         data = snap()
     else:
         data = {"ok": False, "error": "config_snapshot not available in this backend"}
-    indent = 2 if pretty else None
-    typer.echo(json.dumps(data, indent=indent))
+    if yaml_out:
+        typer.echo(_to_yaml(data))
+    else:
+        indent = 2 if pretty else None
+        typer.echo(json.dumps(data, indent=indent))
 
 
 @app.command("serve")
@@ -180,6 +222,9 @@ def serve_cmd() -> None:
     from rviz_mcp.server import run_stdio
 
     run_stdio()
+
+
+cli = get_command(app)
 
 
 def main() -> None:

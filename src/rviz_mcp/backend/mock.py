@@ -30,7 +30,7 @@ class MockBackend:
             "ok": True,
             "profile": profile,
             "fixed_frame": self._fixed_frame,
-            "displays": list(self._displays),
+            "displays": list(self._displays.values()),
         }
 
     def _seed_displays(self, profile: str) -> dict[str, dict[str, Any]]:
@@ -122,20 +122,35 @@ class MockBackend:
     def config_snapshot(self) -> dict[str, Any]:
         """Full snapshot of the current mock RViz config.
 
-        Returns fixed_frame, the view controller, the display tree, panel
-        layout, and the tracked config path — the shape served by the
-        ``rviz://config`` MCP resource.
+        Returns a nested ``config`` document with the fixed frame, the
+        display tree (class/name/enabled/topic), the panel layout
+        (class/name/dock), and the tracked config path — the shape served
+        by the ``rviz://config`` MCP resource and exported by
+        ``export-config``.
         """
-        displays = [dict(d) for d in self._displays.values()]
+        displays = [
+            {
+                "class": d["class"],
+                "name": d["name"],
+                "enabled": d["enabled"],
+                "topic": d["topic"],
+            }
+            for d in self._displays.values()
+        ]
+        panels = [
+            {"class": p["class"], "name": p["name"], "dock": p["dock"]}
+            for p in self._panels.values()
+        ]
         return {
             "ok": True,
-            "mode": "mock",
-            "fixed_frame": self._fixed_frame,
-            "view": dict(self._view),
-            "displays": displays,
-            "display_count": len(displays),
-            "panels": [dict(p) for p in self._panels.values()],
-            "config_path": self._config_path,
+            "config": {
+                "class": "RViz/Display",
+                "name": "RViz",
+                "fixed_frame": self._fixed_frame,
+                "config": self._config_path,
+                "displays": displays,
+                "panels": panels,
+            },
         }
 
     def add_display(
